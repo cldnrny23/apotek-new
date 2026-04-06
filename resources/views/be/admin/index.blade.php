@@ -21,7 +21,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="col-lg-3 col-md-6 mb-3">
         <div class="card border-0 shadow-sm" style="border-left: 4px solid #ffc107;">
           <div class="card-body">
@@ -37,7 +37,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="col-lg-3 col-md-6 mb-3">
         <div class="card border-0 shadow-sm" style="border-left: 4px solid #28a745;">
           <div class="card-body">
@@ -53,7 +53,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="col-lg-3 col-md-6 mb-3">
         <div class="card border-0 shadow-sm" style="border-left: 4px solid #dc3545;">
           <div class="card-body">
@@ -82,7 +82,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="col-lg-3 col-md-6 mb-3">
         <div class="card border-0 shadow-sm" style="background-color: #fff3cd;">
           <div class="card-body">
@@ -92,7 +92,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="col-lg-3 col-md-6 mb-3">
         <div class="card border-0 shadow-sm" style="background-color: #d4edda;">
           <div class="card-body">
@@ -102,7 +102,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="col-lg-3 col-md-6 mb-3">
         <div class="card border-0 shadow-sm" style="background-color: #d1ecf1;">
           <div class="card-body">
@@ -125,7 +125,7 @@
         </div>
       </div>
       @endif
-      
+
       <div class="col-md-6 mb-3">
         <div class="alert alert-info border-left-info shadow-sm" role="alert">
           <h5 class="alert-heading"><i class="mdi mdi-information"></i> 📊 Info Sistem</h5>

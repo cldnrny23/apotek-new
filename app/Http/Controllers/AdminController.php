@@ -24,10 +24,10 @@ class AdminController extends Controller
         // Get statistics for this month
         $totalPenjualan = Penjualan::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count();
         $totalPembelian = Pembelian::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count();
-        
+
         // Revenue from penjualan this month
         $totalRevenue = Penjualan::whereBetween('created_at', [$startOfMonth, $endOfMonth])->sum('total_harga');
-        
+
         // Cost from pembelian this month
         $totalCost = Pembelian::whereBetween('created_at', [$startOfMonth, $endOfMonth])->sum('total_harga');
 
@@ -35,10 +35,10 @@ class AdminController extends Controller
         $totalProduk = Obat::count();
         $totalPelanggan = Pelanggan::count();
         $totalKaryawan = User::count();
-        
+
         // Low stock products (less than 5 units)
         $lowStockProducts = Obat::where('stok', '<', 5)->count();
-        
+
         // Get top products (most sold)
         $topProducts = Obat::withCount('penjualanDetails')
             ->orderBy('penjualan_details_count', 'desc')
