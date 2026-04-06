@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Obat;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -11,8 +12,14 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $products = Obat::where('stok', '>', 0)
+            ->latest()
+            ->take(3)
+            ->get();
+
         return view('fe.home.index', [
-            'title' => 'Home'
+            'title' => 'Home',
+            'products' => $products,
         ]);
     }
 

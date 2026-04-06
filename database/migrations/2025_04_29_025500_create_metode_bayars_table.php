@@ -11,7 +11,7 @@ class CreateMetodeBayarsTable extends Migration
         Schema::create('metode_bayars', function (Blueprint $table) {
             $table->id();
             $table->string('metode_pembayaran');
-            $table->string('format_bayar', 50)->nullable();
+            $table->string('tempat_bayar', 50)->nullable();
             $table->string('no_rekening', 25)->nullable();
             $table->string('url_logo', 255)->nullable();
             $table->timestamps();

@@ -57,7 +57,7 @@
     @endif
     @if (auth()->check() && (auth()->user()->jabatan == 'pemilik' || auth()->user()->jabatan == 'admin'))
         <li class="nav-item">
-            <a class="nav-link" href="index.html">
+            <a class="nav-link" href="{{ route('laporan_keuangan.index') }}">
             <i class="menu-icon typcn typcn-document-text"></i>
             <span class="menu-title">Laporan Keuangan</span>
             </a>
@@ -106,11 +106,19 @@
             </a>
         </li>
     @endif
-    @if (auth()->check() && (auth()->user()->jabatan == 'karyawan' || auth()->user()->jabatan == 'admin'))
+    @if (auth()->check() && (auth()->user()->jabatan == 'karyawan' || auth()->user()->jabatan == 'admin' || auth()->user()->jabatan == 'kurir'))
         <li class="nav-item">
             <a class="nav-link" href="{{ route('pengiriman.index') }}">
             <i class="menu-icon typcn typcn-document-text"></i>
             <span class="menu-title">Pengiriman</span>
+            </a>
+        </li>
+    @endif
+    @if (auth()->check() && (auth()->user()->jabatan == 'karyawan' || auth()->user()->jabatan == 'admin'))
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('metode-bayar.index') }}">
+            <i class="menu-icon typcn typcn-document-text"></i>
+            <span class="menu-title">Metode Pembayaran</span>
             </a>
         </li>
     @endif

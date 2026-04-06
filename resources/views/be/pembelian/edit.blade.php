@@ -4,6 +4,9 @@
 @endsection
 @section('content')
 <div class="container">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <!-- Load jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Edit Pembelian</h3>
@@ -56,7 +59,7 @@
                                         <select name="obat_id[]" class="form-control obat-select" required>
                                             <option value="">Pilih Obat</option>
                                             @foreach($obats as $obat)
-                                            <option value="{{ $obat->id }}" {{ $detail->id_obat == $obat->id ? 'selected' : '' }}>
+                                            <option value="{{ $obat->id }}" data-harga="{{ $obat->harga_beli }}" {{ $detail->id_obat == $obat->id ? 'selected' : '' }}>
                                                 {{ $obat->nama_obat }}
                                             </option>
                                             @endforeach
@@ -69,7 +72,7 @@
                                         <input type="number" name="harga_beli[]" class="form-control harga" value="{{ $detail->harga_beli }}" required>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control subtotal" value="{{ $detail->subtotal }}" readonly>
+                                        <input type="number" class="form-control subtotal" value="{{ $detail->jumlah_beli * $detail->harga_beli }}" readonly>
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-danger btn-remove">Hapus</button>
@@ -99,5 +102,82 @@
         </div>
     </div>
 </div>
+<script>
+$(document).ready(function() {
+    // Fungsi untuk menambahkan row baru
+    $('#add-row').click(function() {
+        var newRow = `
+        <tr>
+            <td>
+                <select name="obat_id[]" class="form-control obat-select" required>
+                    <option value="">Pilih Obat</option>
+                    @foreach($obats as $obat)
+                    <option value="{{ $obat->id }}" data-harga="{{ $obat->harga_beli }}">{{ $obat->nama_obat }}</option>
+                    @endforeach
+                </select>
+            </td>
+            <td>
+                <input type="number" name="jumlah[]" class="form-control jumlah" min="1" value="1" required>
+            </td>
+            <td>
+                <input type="number" name="harga_beli[]" class="form-control harga" required>
+            </td>
+            <td>
+                <input type="number" class="form-control subtotal" readonly>
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm remove-row">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </td>
+        </tr>`;
 
+        $('#detail-table tbody').append(newRow);
+    });
+
+    // Fungsi untuk menghapus row
+    $(document).on('click', '.btn-remove, .remove-row', function() {
+        $(this).closest('tr').remove();
+        calculateTotal();
+    });
+
+    // Fungsi untuk menghitung subtotal dan total
+    function calculateSubtotal(row) {
+        var jumlah = parseFloat(row.find('.jumlah').val()) || 0;
+        var harga = parseFloat(row.find('.harga').val()) || 0;
+        var subtotal = jumlah * harga;
+        row.find('.subtotal').val(subtotal.toFixed(2));
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        var total = 0;
+        $('#detail-table tbody tr').each(function() {
+            var subtotal = parseFloat($(this).find('.subtotal').val()) || 0;
+            total += subtotal;
+        });
+        $('#total_bayar').val(total.toFixed(2));
+    }
+
+    // Event listener untuk perubahan jumlah dan harga
+    $(document).on('input', '.jumlah, .harga', function() {
+        var row = $(this).closest('tr');
+        calculateSubtotal(row);
+    });
+
+    // Event listener untuk perubahan pilihan obat
+    $(document).on('change', '.obat-select', function() {
+        var selectedOption = $(this).find('option:selected');
+        var harga = selectedOption.data('harga');
+        var row = $(this).closest('tr');
+        row.find('.harga').val(harga || '');
+        calculateSubtotal(row);
+    });
+
+    // Hitung subtotal awal untuk semua row
+    $('#detail-table tbody tr').each(function() {
+        calculateSubtotal($(this));
+    });
+});
+</script>
 @endsection

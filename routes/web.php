@@ -27,6 +27,8 @@ use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\ProfileUserController;
 use App\Http\Controllers\ProfilePelangganController;
 use App\Http\Controllers\JenisPengirimanController;
+use App\Http\Controllers\LaporanKeuanganController;
+use App\Http\Controllers\KurirController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\RoleAuth;
 
@@ -64,8 +66,16 @@ Route::resource('list', ProdukController::class);
 Route::resource('pelanggan', PelangganController::class);
 Route::resource('pembelian', PembelianController::class);
 Route::resource('cart', KeranjangController::class);
-Route::resource('pengiriman', PengirimanController::class);
-Route::resource('pengiriman', JenisPengirimanController::class);
+Route::get('/checkout', [KeranjangController::class, 'checkout'])->name('checkout.index');
+Route::post('/checkout', [KeranjangController::class, 'processCheckout'])->name('checkout.process');
+Route::get('/payment/{penjualanId}', [KeranjangController::class, 'showPayment'])->name('payment.show');
+Route::post('/payment/{penjualanId}/confirm', [KeranjangController::class, 'confirmPayment'])->name('payment.confirm');
+
+// Admin Routes with Middleware
+Route::middleware(['auth', RoleAuth::class . ':admin,apoteker,kasir,pemilik,karyawan,kurir'])->group(function () {
+    Route::resource('pengiriman', PengirimanController::class);
+    Route::put('pengiriman/{pengiriman}/update-status', [PengirimanController::class, 'updateStatus'])->name('pengiriman.updateStatus');
+});
 
 // Role-based Dashboard Routes
 Route::get('/admin', [AdminController::class, 'index'])
@@ -87,6 +97,10 @@ Route::get('/kasir', [KasirController::class, 'index'])
     ->middleware(['auth', RoleAuth::class . ':kasir'])
     ->name('kasir');
 
+Route::get('/kurir', [KurirController::class, 'index'])
+    ->middleware(['auth', RoleAuth::class . ':kurir'])
+    ->name('kurir');
+
 // Main Dashboard Route
 Route::get('/dashboard', function () {
     $user = Auth::user();
@@ -102,6 +116,8 @@ Route::get('/dashboard', function () {
             return redirect()->route('pemilik');
         case 'kasir':
             return redirect()->route('kasir');
+        case 'kurir':
+            return redirect()->route('kurir');
         default:
             return redirect()->back()->withErrors('Unauthorized access.');
     }
@@ -126,7 +142,10 @@ Route::middleware(['auth:pelanggan'])->group(function () {
     Route::put('/profile-pelanggan', [ProfilePelangganController::class, 'update'])->name('profilefe.update');
 });
 
-
+// Laporan Keuangan Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'index'])->name('laporan_keuangan.index');
+});
 
 // User Management Routes
 Route::prefix('users')->group(function () {
@@ -177,22 +196,24 @@ Route::prefix('pembelian')->group(function () {
     Route::delete('/{id}', [PembelianController::class, 'destroy'])->name('pembelian.destroy');
 });
 
-Route::middleware(['auth:pelanggan'])->group(function () {
+// Admin Pelanggan Management Routes
+Route::prefix('pelanggans')->middleware(['auth:web'])->group(function () {
     Route::get('/', [PelangganController::class, 'index'])->name('pelanggans.index');
     Route::get('/create', [PelangganController::class, 'create'])->name('pelanggans.create');
     Route::post('/', [PelangganController::class, 'store'])->name('pelanggans.store');
-    Route::get('/{id}/edit', [PelangganController::class, 'edit'])->name('pelanggans.edit');
-    Route::put('/{id}', [PelangganController::class, 'update'])->name('pelanggans.update');
-    Route::delete('/{id}', [PelangganController::class, 'destroy'])->name('pelanggans.destroy');
+    Route::get('/{pelanggan}/edit', [PelangganController::class, 'edit'])->name('pelanggans.edit');
+    Route::put('/{pelanggan}', [PelangganController::class, 'update'])->name('pelanggans.update');
+    Route::delete('/{pelanggan}', [PelangganController::class, 'destroy'])->name('pelanggans.destroy');
 });
 
-Route::prefix('penjualan')->group(function () {
+Route::prefix('penjualan')->middleware(['auth', RoleAuth::class . ':admin,apoteker,kasir,pemilik'])->group(function () {
     Route::get('/', [PenjualanController::class, 'index'])->name('penjualans.index');
     Route::get('/create', [PenjualanController::class, 'create'])->name('penjualans.create');
     Route::post('/', [PenjualanController::class, 'store'])->name('penjualans.store');
-    Route::get('/{id}/edit', [PenjualanController::class, 'edit'])->name('penjualans.edit');
-    Route::put('/{id}', [PenjualanController::class, 'update'])->name('penjualans.update');
-    Route::delete('/{id}', [PenjualanController::class, 'destroy'])->name('penjualans.destroy');
+    Route::get('/{penjualan}/edit', [PenjualanController::class, 'edit'])->name('penjualans.edit');
+    Route::put('/{penjualan}', [PenjualanController::class, 'update'])->name('penjualans.update');
+    Route::post('/{penjualan}/confirm', [PenjualanController::class, 'confirm'])->name('penjualans.confirm');
+    Route::delete('/{penjualan}', [PenjualanController::class, 'destroy'])->name('penjualans.destroy');
 });
 
 Route::prefix('jenis_pengiriman')->group(function () {
@@ -203,13 +224,4 @@ Route::prefix('jenis_pengiriman')->group(function () {
     Route::get('/{id}', [JenisPengirimanController::class, 'show'])->name('jenis_pengirimans.show');
     Route::put('/{id}', [JenisPengirimanController::class, 'update'])->name('jenis_pengirimans.update');
     Route::delete('/{id}', [JenisPengirimanController::class, 'destroy'])->name('jenis_pengirimans.destroy');
-});
-
-Route::prefix('pengiriman')->group(function () {
-    Route::get('/', [PengirimanController::class, 'index'])->name('pengiriman.index');
-    Route::get('/create', [PengirimanController::class, 'create'])->name('pengiriman.create');
-    Route::post('/', [PengirimanController::class, 'store'])->name('pengiriman.store');
-    Route::get('/{id}/edit', [PengirimanController::class, 'edit'])->name('pengiriman.edit');
-    Route::put('/{id}', [PengirimanController::class, 'update'])->name('pengiriman.update');
-    Route::delete('/{id}', [PengirimanController::class, 'destroy'])->name('pengiriman.destroy');
 });

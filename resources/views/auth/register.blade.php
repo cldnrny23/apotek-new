@@ -86,6 +86,7 @@
                                                 <option value="apoteker">Apoteker</option>
                                                 <option value="karyawan">Karyawan</option>
                                                 <option value="kasir">Kasir</option>
+                                                <option value="kurir">Kurir</option>
                                             </select>
                                         </div>
                                     </div>

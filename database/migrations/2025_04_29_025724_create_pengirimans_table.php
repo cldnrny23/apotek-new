@@ -18,8 +18,10 @@ return new class extends Migration
             ->onDelete('cascade')->onUpdate('cascade');
             $table->string('no_invoice')->unique();
             $table->dateTime('tgl_kirim');
-            $table->dateTime('tgl_tiba');
-            $table->enum('status_kirim', ['Sedang Dikirim', 'Tiba Ditujuan']);
+            $table->dateTime('tgl_tiba')->nullable();
+            $table->enum('status_kirim', [
+                'Menunggu Konfirmasi', 'Sedang Dikirim', 'Diterima'
+            ])->default('Menunggu Konfirmasi');
             $table->string('nama_kurir', 30);
             $table->string('telpon_kurir', 15);
             $table->string('bukti_foto');

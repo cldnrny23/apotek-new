@@ -17,7 +17,7 @@
             </div>
         </div>
         <div class="banner_img">
-            <img src="{{asset('fe/img/banner.png')}}" alt="#" class="img-fluid">
+            <img src="{{asset('fe/img/apotek.jpg')}}" alt="#" class="img-fluid">
             <img src="{{asset('fe/img/banner_pattern.png')}}" alt="#" class="pattern_img img-fluid">
         </div>
     </section>

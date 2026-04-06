@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->string('foto')->nullable();
-            $table->enum('jabatan', ['admin', 'apoteker', 'karyawan', 'kasir', 'pemilik'])->default('karyawan');
+            $table->enum('jabatan', ['admin', 'apoteker', 'karyawan', 'kasir', 'pemilik', 'kurir'])->default('karyawan');
             $table->timestamps();
 
         });

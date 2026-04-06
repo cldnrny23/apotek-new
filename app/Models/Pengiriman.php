@@ -19,6 +19,16 @@ class Pengiriman extends Model
         'keterangan'
     ];
 
+    protected $dates = [
+        'tgl_kirim',
+        'tgl_tiba',
+    ];
+
+    public function penjualan()
+    {
+        return $this->belongsTo(Penjualan::class, 'id_penjualan');
+    }
+
     public function jenisPengiriman()
     {
         return $this->belongsTo(JenisPengiriman::class, 'id_jenis_pengiriman');

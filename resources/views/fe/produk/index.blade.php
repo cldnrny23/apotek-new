@@ -1,4 +1,8 @@
 @extends('fe.master')
+@section('navbar')
+    @include('fe.navbar')
+@endsection
+
 @section('produk-list')
  <!-- breadcrumb part start-->
  <section class="breadcrumb_part">
@@ -31,10 +35,13 @@
                             <div class="select_option_list">Jenis Obat  <i class="right fas fa-caret-down"></i></div>
                             <div class="select_option_dropdown">
                                 <p><a href="{{ route('products.index') }}">Semua Produk</a></p>
-                                <p><a href="{{ route('products.search', ['filter' => 'popular']) }}">Obat Bebas</a></p>
-                                <p><a href="{{ route('products.search', ['filter' => 'newest']) }}">Obas Bebas Terbatas</a></p>
-                                <p><a href="{{ route('products.search', ['filter' => 'price_low']) }}">Obat Keras</a></p>
-                                <p><a href="{{ route('products.search', ['filter' => 'price_high']) }}">Vitamin</a></p>
+                                @foreach($categories as $category)
+                                    <p>
+                                        <a href="{{ route('products.search', array_filter(['category' => $category->id, 'query' => request('query')])) }}">
+                                            {{ $category->jenis }}
+                                        </a>
+                                    </p>
+                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -51,8 +58,7 @@
                                 <h3>
                                     <a href="{{ route('products.show', $product->id) }}">{{ $product->nama_obat }}</a>
                                 </h3>
-                                <p class="product-category">{{ $product->jenisObat->nama_jenis }}</p>
-                                <!-- Sesuaikan dengan harga_jual -->
+                                <p class="product-category">{{ $product->jenisObat->jenis ?? '-' }}</p>
                                 <p class="product-price">Rp {{ number_format($product->harga_jual, 0, ',', '.') }}</p>
                                 <p class="product-stock {{ $product->stok > 0 ? 'in-stock' : 'out-stock' }}">
                                     {{ $product->stok > 0 ? 'Tersedia' : 'Habis' }}

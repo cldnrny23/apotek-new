@@ -19,7 +19,7 @@
                                 <option value="">Pilih Penjualan</option>
                                 @foreach($penjualans as $penjualan)
                                     <option value="{{ $penjualan->id }}" {{ old('id_penjualan') == $penjualan->id ? 'selected' : '' }}>
-                                        {{ $penjualan->no_invoice }}
+                                        #{{ str_pad($penjualan->id, 5, '0', STR_PAD_LEFT) }} - {{ $penjualan->pelanggan->nama_pelanggan }} - Rp {{ number_format($penjualan->total_bayar, 0, ',', '.') }}
                                     </option>
                                 @endforeach
                             </select>
@@ -61,9 +61,21 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="kurir_select" class="form-label">Pilih Kurir</label>
+                            <select id="kurir_select" class="form-select @error('nama_kurir') is-invalid @enderror">
+                                <option value="">Pilih Kurir</option>
+                                @foreach($kurirs as $kurir)
+                                    <option value="{{ $kurir->id }}" data-nama="{{ $kurir->name }}" data-telpon="{{ $kurir->no_hp }}">
+                                        {{ $kurir->name }} - {{ $kurir->no_hp }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="nama_kurir" class="form-label">Nama Kurir</label>
                             <input type="text" class="form-control @error('nama_kurir') is-invalid @enderror"
-                                name="nama_kurir" value="{{ old('nama_kurir') }}">
+                                name="nama_kurir" id="nama_kurir" value="{{ old('nama_kurir') }}" readonly>
                             @error('nama_kurir')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -72,7 +84,7 @@
                         <div class="mb-3">
                             <label for="telpon_kurir" class="form-label">Telpon Kurir</label>
                             <input type="text" class="form-control @error('telpon_kurir') is-invalid @enderror"
-                                name="telpon_kurir" value="{{ old('telpon_kurir') }}">
+                                name="telpon_kurir" id="telpon_kurir" value="{{ old('telpon_kurir') }}" readonly>
                             @error('telpon_kurir')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -109,4 +121,15 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('kurir_select').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const nama = selectedOption.getAttribute('data-nama');
+    const telpon = selectedOption.getAttribute('data-telpon');
+    
+    document.getElementById('nama_kurir').value = nama || '';
+    document.getElementById('telpon_kurir').value = telpon || '';
+});
+</script>
 @endsection

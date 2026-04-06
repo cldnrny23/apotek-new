@@ -10,7 +10,7 @@ class CreateJenisPengirimansTable extends Migration
     {
         Schema::create('jenis_pengirimans', function (Blueprint $table) {
             $table->id();
-            $table->enum('jenis_kirim', ['ekonom', 'kargo', 'regular', 'same day', 'standard']);
+            $table->enum('jenis_kirim', ['ekonomi', 'kargo', 'regular', 'same day', 'standar']);
             $table->string('nama_ekspedisi');
             $table->string('logo_ekspedisi')->nullable();
             $table->timestamps();

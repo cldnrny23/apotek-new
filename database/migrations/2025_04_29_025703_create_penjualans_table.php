@@ -10,7 +10,7 @@ class CreatePenjualansTable extends Migration
     public function up()
     {
         Schema::create('penjualans', function (Blueprint $table) {
-            $table->id();
+            $table->id('id')->primary()->autoIncrement();
             $table->unsignedBigInteger('id_metode_bayar')->nullable();
             $table->date('tgl_penjualan')->nullable();
             $table->string('url_resep', 255)->nullable();
@@ -18,9 +18,9 @@ class CreatePenjualansTable extends Migration
             $table->double('biaya_app')->nullable();
             $table->double('total_bayar')->nullable();
             $table->enum('status_order', [
-                'Menunggu Konfirmasi', 'Diproses', 'Menunggu Kurir',
+                'Menunggu Konfirmasi Pembayaran', 'Menunggu Konfirmasi', 'Diproses', 'Menunggu Kurir',
                 'Dibatalkan Pembeli', 'Dibatalkan Penjual', 'Bermasalah', 'Selesai'
-            ])->default('Menunggu Konfirmasi');
+            ])->default('Menunggu Konfirmasi Pembayaran');
             $table->string('keterangan_status', 255)->nullable();
             $table->unsignedBigInteger('id_jenis_kirim')->nullable();
             $table->unsignedBigInteger('id_pelanggan')->nullable();

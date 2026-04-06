@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MetodeBayar;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MetodeBayarController extends Controller
 {
@@ -22,13 +23,17 @@ class MetodeBayarController extends Controller
     {
         $validated = $request->validate([
             'metode_pembayaran' => 'required|string|max:255',
-            'format_bayar' => 'required|string|max:50',
+            'tempat_bayar' => 'required|string|max:50',
             'no_rekening' => 'required|string|max:25',
-            'url_logo' => 'required|string|max:255'
+            'url_logo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
 
+        if ($request->hasFile('url_logo')) {
+            $validated['url_logo'] = $request->file('url_logo')->store('metode-bayar-logos', 'public');
+        }
+
         MetodeBayar::create($validated);
-        return redirect()->route('metode-bayars.index')
+        return redirect()->route('metode-bayar.index')
             ->with('success', 'Metode pembayaran berhasil ditambahkan');
     }
 
@@ -41,20 +46,29 @@ class MetodeBayarController extends Controller
     {
         $validated = $request->validate([
             'metode_pembayaran' => 'required|string|max:255',
-            'format_bayar' => 'required|string|max:50',
+            'tempat_bayar' => 'required|string|max:50',
             'no_rekening' => 'required|string|max:25',
-            'url_logo' => 'required|string|max:255'
+            'url_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
 
+        if ($request->hasFile('url_logo')) {
+            if ($metodeBayar->url_logo && Storage::disk('public')->exists($metodeBayar->url_logo)) {
+                Storage::disk('public')->delete($metodeBayar->url_logo);
+            }
+            $validated['url_logo'] = $request->file('url_logo')->store('metode-bayar-logos', 'public');
+        } else {
+            unset($validated['url_logo']);
+        }
+
         $metodeBayar->update($validated);
-        return redirect()->route('metode-bayars.index')
+        return redirect()->route('metode-bayar.index')
             ->with('success', 'Metode pembayaran berhasil diperbarui');
     }
 
     public function destroy(MetodeBayar $metodeBayar)
     {
         $metodeBayar->delete();
-        return redirect()->route('metode-bayars.index')
+        return redirect()->route('metode-bayar.index')
             ->with('success', 'Metode pembayaran berhasil dihapus');
     }
 }

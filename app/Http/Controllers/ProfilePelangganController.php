@@ -30,7 +30,7 @@ class ProfilePelangganController extends Controller
         $validated = $request->validate([
             'nama_pelanggan' => 'required|string|max:255',
             'email' => 'required|email|unique:pelanggans,email,'.$pelanggan->id,
-            'no_hp' => 'required|string|max:20|unique:pelanggans,no_hp,'.$pelanggan->id,
+            'no_telp' => 'required|string|max:20|unique:pelanggans,no_telp,'.$pelanggan->id,
             'password' => 'nullable|min:6|max:12',
             'alamat1' => 'required|string|max:255',
             'kota1' => 'required|string|max:255',
@@ -52,7 +52,7 @@ class ProfilePelangganController extends Controller
             $updateData = [
                 'nama_pelanggan' => $validated['nama_pelanggan'],
                 'email' => $validated['email'],
-                'no_hp' => $validated['no_hp'],
+                'no_telp' => $validated['no_telp'],
                 'alamat1' => $validated['alamat1'],
                 'kota1' => $validated['kota1'],
                 'propinsi1' => $validated['propinsi1'],

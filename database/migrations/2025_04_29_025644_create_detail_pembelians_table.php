@@ -13,6 +13,7 @@ class CreateDetailPembeliansTable extends Migration
             $table->unsignedBigInteger('id_obat');
             $table->integer('jumlah_beli');
             $table->double('harga_beli');
+            $table->integer('subtotal');
             $table->unsignedBigInteger('id_pembelian');
             $table->timestamps();
 

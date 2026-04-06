@@ -11,7 +11,8 @@ class JenisPengiriman extends Model
     protected $fillable = [
         'jenis_kirim',
         'nama_ekspedisi',
-        'logo_ekspedisi'
+        'logo_ekspedisi',
+        'ongkos_kirim'
     ];
 
     public function pengirimans()

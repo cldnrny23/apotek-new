@@ -28,7 +28,7 @@ class UserController extends Controller
             'name' => 'required|string|max:50',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'no_hp' => 'required|string|max:15',
+            'no_hp' => 'required|string|max:15|unique:users,no_hp',
             'jabatan' => 'required|string|in:admin,apoteker,kasir,pemilik,karyawan'
         ]);
 

@@ -54,11 +54,20 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'pemilik',
+            'name' => 'Pemilik',
             'email' => 'owner@gmail.com',
             'no_hp' => '081234567894',
             'password' => Hash::make('12345678'),
             'jabatan' => 'pemilik',
+        ]);
+
+
+        User::create([
+            'name' => 'Kurir',
+            'email' => 'kurir@gmail.com',
+            'no_hp' => '081234567895',
+            'password' => Hash::make('12345678'),
+            'jabatan' => 'kurir',
         ]);
     }
 }

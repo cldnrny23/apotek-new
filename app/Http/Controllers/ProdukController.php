@@ -18,8 +18,8 @@ class ProdukController extends Controller
 
     public function show($id)
     {
-        $products = Obat::with('jenisObat')->findOrFail($id);
-        $relatedProducts = Obat::where('jenis_obat_id', $product->jenis_obat_id)
+        $product = Obat::with('jenisObat')->findOrFail($id);
+        $relatedProducts = Obat::where('id_jenis', $product->id_jenis)
             ->where('id', '!=', $id)
             ->limit(4)
             ->get();
@@ -37,7 +37,7 @@ class ProdukController extends Controller
                         return $q->where('nama_obat', 'like', "%$query%");
                     })
                     ->when($category, function($q) use ($category) {
-                        return $q->where('jenis_obat_id', $category);
+                        return $q->where('id_jenis', $category);
                     })
                     ->where('stok', '>', 0)
                     ->paginate(10);
