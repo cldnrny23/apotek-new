@@ -23,6 +23,7 @@
                             <th>Nama Metode</th>
                             <th>Tempat Bayar</th>
                             <th>No Rekening</th>
+                            <th>Midtrans Type</th>
                             <th>Logo</th>
                             <th>Aksi</th>
                         </tr>
@@ -34,6 +35,7 @@
                             <td>{{ $metode->metode_pembayaran }}</td>
                             <td>{{ $metode->tempat_bayar }}</td>
                             <td>{{ $metode->no_rekening }}</td>
+                            <td>{{ $metode->midtrans_payment_type ? ucwords(str_replace('_', ' ', $metode->midtrans_payment_type)) : 'Manual / Offline' }}</td>
                             <td>
                                 <img src="{{ strpos($metode->url_logo, 'http://') === 0 || strpos($metode->url_logo, 'https://') === 0 ? $metode->url_logo : asset('storage/' . $metode->url_logo) }}" alt="Logo {{ $metode->metode_pembayaran }}" style="max-width: 100px; max-height: 50px; object-fit: contain;">
                             </td>
@@ -48,7 +50,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center">Tidak ada metode pembayaran.</td>
+                            <td colspan="7" class="text-center">Tidak ada metode pembayaran.</td>
                         </tr>
                         @endforelse
                     </tbody>

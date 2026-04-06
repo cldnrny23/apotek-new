@@ -44,6 +44,29 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
+                            <label for="midtrans_payment_type" class="form-label">Midtrans Payment Type</label>
+                            <select name="midtrans_payment_type" id="midtrans_payment_type" class="form-select @error('midtrans_payment_type') is-invalid @enderror">
+                                <option value="">-- Tidak terintegrasi Midtrans --</option>
+                                <option value="bank_transfer" {{ old('midtrans_payment_type', $metodeBayar->midtrans_payment_type) === 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
+                                <option value="permata_va" {{ old('midtrans_payment_type', $metodeBayar->midtrans_payment_type) === 'permata_va' ? 'selected' : '' }}>Permata VA</option>
+                                <option value="bca_va" {{ old('midtrans_payment_type', $metodeBayar->midtrans_payment_type) === 'bca_va' ? 'selected' : '' }}>BCA VA</option>
+                                <option value="bni_va" {{ old('midtrans_payment_type', $metodeBayar->midtrans_payment_type) === 'bni_va' ? 'selected' : '' }}>BNI VA</option>
+                                <option value="bri_va" {{ old('midtrans_payment_type', $metodeBayar->midtrans_payment_type) === 'bri_va' ? 'selected' : '' }}>BRI VA</option>
+                                <option value="gopay" {{ old('midtrans_payment_type', $metodeBayar->midtrans_payment_type) === 'gopay' ? 'selected' : '' }}>GoPay</option>
+                                <option value="ovo" {{ old('midtrans_payment_type', $metodeBayar->midtrans_payment_type) === 'ovo' ? 'selected' : '' }}>OVO</option>
+                                <option value="shopeepay" {{ old('midtrans_payment_type', $metodeBayar->midtrans_payment_type) === 'shopeepay' ? 'selected' : '' }}>ShopeePay</option>
+                                <option value="qris" {{ old('midtrans_payment_type', $metodeBayar->midtrans_payment_type) === 'qris' ? 'selected' : '' }}>QRIS</option>
+                                <option value="credit_card" {{ old('midtrans_payment_type', $metodeBayar->midtrans_payment_type) === 'credit_card' ? 'selected' : '' }}>Credit Card</option>
+                                <option value="echannel" {{ old('midtrans_payment_type', $metodeBayar->midtrans_payment_type) === 'echannel' ? 'selected' : '' }}>Mandiri Bill / E-Channel</option>
+                            </select>
+                            @error('midtrans_payment_type')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                        <div class="mb-3">
                             <label for="url_logo" class="form-label">Logo Pembayaran</label>
                             <input type="file" name="url_logo" id="url_logo" class="form-control @error('url_logo') is-invalid @enderror">
                             @error('url_logo')

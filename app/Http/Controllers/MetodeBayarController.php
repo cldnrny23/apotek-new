@@ -25,7 +25,8 @@ class MetodeBayarController extends Controller
             'metode_pembayaran' => 'required|string|max:255',
             'tempat_bayar' => 'required|string|max:50',
             'no_rekening' => 'required|string|max:25',
-            'url_logo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+            'url_logo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'midtrans_payment_type' => 'nullable|string|max:50',
         ]);
 
         if ($request->hasFile('url_logo')) {
@@ -48,7 +49,8 @@ class MetodeBayarController extends Controller
             'metode_pembayaran' => 'required|string|max:255',
             'tempat_bayar' => 'required|string|max:50',
             'no_rekening' => 'required|string|max:25',
-            'url_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+            'url_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'midtrans_payment_type' => 'nullable|string|max:50',
         ]);
 
         if ($request->hasFile('url_logo')) {

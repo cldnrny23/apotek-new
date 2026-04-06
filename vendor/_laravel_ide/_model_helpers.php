@@ -2186,6 +2186,7 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
+     * @property string|null $midtrans_payment_type
      * @property string|null $url_logo
      * @property string|null $no_rekening
      * @property string|null $tempat_bayar
@@ -2196,6 +2197,7 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<MetodeBayar>|MetodeBayar whereTempatBayar($value)
      * @method static \Illuminate\Database\Eloquent\Builder<MetodeBayar>|MetodeBayar whereNoRekening($value)
      * @method static \Illuminate\Database\Eloquent\Builder<MetodeBayar>|MetodeBayar whereUrlLogo($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<MetodeBayar>|MetodeBayar whereMidtransPaymentType($value)
      * @method static \Illuminate\Database\Eloquent\Builder<MetodeBayar>|MetodeBayar whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<MetodeBayar>|MetodeBayar whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<MetodeBayar>|MetodeBayar newModelQuery()
@@ -3804,6 +3806,8 @@ namespace App\Models {
      * @property mixed $id_jenis_kirim
      * @property string|null $keterangan_status
      * @property mixed $status_order
+     * @property string|null $midtrans_order_id
+     * @property string|null $snap_token
      * @property float|null $total_bayar
      * @property float|null $biaya_app
      * @property float|null $ongkos_kirim
@@ -3824,6 +3828,8 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereOngkosKirim($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereBiayaApp($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereTotalBayar($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereSnapToken($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereMidtransOrderId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereStatusOrder($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereKeteranganStatus($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereIdJenisKirim($value)

@@ -29,6 +29,7 @@ use App\Http\Controllers\ProfilePelangganController;
 use App\Http\Controllers\JenisPengirimanController;
 use App\Http\Controllers\LaporanKeuanganController;
 use App\Http\Controllers\KurirController;
+use App\Http\Controllers\MidtransController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\RoleAuth;
 
@@ -69,6 +70,8 @@ Route::resource('cart', KeranjangController::class);
 Route::get('/checkout', [KeranjangController::class, 'checkout'])->name('checkout.index');
 Route::post('/checkout', [KeranjangController::class, 'processCheckout'])->name('checkout.process');
 Route::get('/payment/{penjualanId}', [KeranjangController::class, 'showPayment'])->name('payment.show');
+Route::get('/payment/{penjualanId}/link', [KeranjangController::class, 'midtransPaymentLink'])->name('payment.link');
+Route::match(['get', 'post'], '/payment/finish', [KeranjangController::class, 'paymentFinish'])->name('payment.finish');
 Route::post('/payment/{penjualanId}/confirm', [KeranjangController::class, 'confirmPayment'])->name('payment.confirm');
 Route::post('/payment/{penjualanId}/cancel', [KeranjangController::class, 'cancelOrder'])->name('payment.cancel');
 Route::get('/payment/{penjualanId}/success', [KeranjangController::class, 'paymentSuccess'])->name('payment.success');

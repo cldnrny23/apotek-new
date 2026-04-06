@@ -14,28 +14,78 @@ class MidtransController extends Controller
     public function __construct()
     {
         // Set konfigurasi Midtrans
-        Config::$serverKey = config('services.midtrans.server_key');
-        Config::$clientKey = config('services.midtrans.client_key');
-        Config::$isProduction = config('services.midtrans.is_production');
-        Config::$isSanitized = config('services.midtrans.is_sanitized');
-        Config::$is3ds = config('services.midtrans.is_3ds');
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$clientKey = config('midtrans.client_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized = config('midtrans.sanitized');
+        Config::$is3ds = config('midtrans.3ds');
+    }
+
+    private function resolveEnabledPayments($metodeBayar)
+    {
+        if (! $metodeBayar) {
+            return [];
+        }
+
+        $selected = $metodeBayar->midtrans_payment_type;
+        if ($selected) {
+            return [$selected];
+        }
+
+        $search = strtolower($metodeBayar->metode_pembayaran . ' ' . ($metodeBayar->tempat_bayar ?? ''));
+
+        if (str_contains($search, 'gopay')) {
+            return ['gopay'];
+        }
+        if (str_contains($search, 'ovo')) {
+            return ['ovo'];
+        }
+        if (str_contains($search, 'shopeepay')) {
+            return ['shopeepay'];
+        }
+        if (str_contains($search, 'qris')) {
+            return ['qris'];
+        }
+        if (str_contains($search, 'credit card') || str_contains($search, 'kartu kredit')) {
+            return ['credit_card'];
+        }
+        if (str_contains($search, 'bank transfer') || str_contains($search, 'transfer')) {
+            return ['bank_transfer'];
+        }
+        if (str_contains($search, 'bca')) {
+            return ['bca_va'];
+        }
+        if (str_contains($search, 'bni')) {
+            return ['bni_va'];
+        }
+        if (str_contains($search, 'bri')) {
+            return ['bri_va'];
+        }
+        if (str_contains($search, 'permata')) {
+            return ['permata_va'];
+        }
+        if (str_contains($search, 'mandiri')) {
+            return ['echannel'];
+        }
+
+        return [];
     }
 
     /**
      * Membuat transaksi Midtrans untuk penjualan
      */
-    public function createTransaction($penjualanId)
+    public function createTransaction($penjualanId, bool $forceNewTransaction = false)
     {
         $penjualan = Penjualan::with(['pelanggan', 'detailPenjualans.obat', 'metodeBayar', 'jenisPengiriman'])
             ->findOrFail($penjualanId);
 
-        // Pastikan penjualan milik user yang sedang login
-        if ($penjualan->id_pelanggan !== auth('pelanggan')->id()) {
+        // Pastikan penjualan milik user yang sedang login jika ada sesi pelanggan
+        if (auth('pelanggan')->check() && $penjualan->id_pelanggan !== auth('pelanggan')->id()) {
             abort(403, 'Unauthorized');
         }
 
-        // Cek apakah sudah ada snap_token
-        if ($penjualan->snap_token) {
+        // Cek apakah sudah ada snap_token dan apakah token tersebut masih dapat digunakan
+        if (!$forceNewTransaction && $this->shouldReuseSnapToken($penjualan)) {
             return response()->json([
                 'snap_token' => $penjualan->snap_token
             ]);
@@ -47,10 +97,11 @@ class MidtransController extends Controller
             'gross_amount' => (int) $penjualan->total_bayar,
         ];
 
+        $customer = $penjualan->pelanggan;
         $customer_details = [
-            'first_name' => $penjualan->pelanggan->nama_pelanggan,
-            'email' => $penjualan->pelanggan->email ?? 'customer@example.com',
-            'phone' => $penjualan->pelanggan->no_hp ?? '081234567890',
+            'first_name' => optional($customer)->nama_pelanggan ?? 'Pelanggan',
+            'email' => optional($customer)->email ?? 'customer@example.com',
+            'phone' => optional($customer)->no_hp ?? '081234567890',
         ];
 
         $item_details = [];
@@ -88,11 +139,16 @@ class MidtransController extends Controller
             'customer_details' => $customer_details,
             'item_details' => $item_details,
             'callbacks' => [
-                'finish' => route('payment.success', $penjualan->id),
+                'finish' => route('payment.finish'),
                 'error' => route('payment.show', $penjualan->id),
                 'pending' => route('payment.show', $penjualan->id),
             ],
         ];
+
+        $enabledPayments = $this->resolveEnabledPayments($penjualan->metodeBayar);
+        if (!empty($enabledPayments)) {
+            $transaction_data['enabled_payments'] = $enabledPayments;
+        }
 
         try {
             $snapToken = Snap::getSnapToken($transaction_data);
@@ -111,6 +167,23 @@ class MidtransController extends Controller
                 'error' => 'Gagal membuat transaksi: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    private function shouldReuseSnapToken(Penjualan $penjualan): bool
+    {
+        if (! $penjualan->snap_token || ! $penjualan->midtrans_order_id) {
+            return false;
+        }
+
+        $status = strtolower($penjualan->keterangan_status ?? '');
+
+        if (str_contains($status, 'expired via midtrans')
+            || str_contains($status, 'dibatalkan via midtrans')
+            || str_contains($status, 'ditolak oleh midtrans')) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -149,19 +222,22 @@ class MidtransController extends Controller
             case 'deny':
                 $penjualan->update([
                     'status_order' => 'Dibatalkan Pembeli',
-                    'keterangan_status' => 'Pembayaran ditolak oleh Midtrans'
+                    'keterangan_status' => 'Pembayaran ditolak oleh Midtrans',
+                    'snap_token' => null,
                 ]);
                 break;
             case 'expire':
                 $penjualan->update([
                     'status_order' => 'Dibatalkan Pembeli',
-                    'keterangan_status' => 'Pembayaran expired via Midtrans'
+                    'keterangan_status' => 'Pembayaran expired via Midtrans',
+                    'snap_token' => null,
                 ]);
                 break;
             case 'cancel':
                 $penjualan->update([
                     'status_order' => 'Dibatalkan Pembeli',
-                    'keterangan_status' => 'Pembayaran dibatalkan via Midtrans'
+                    'keterangan_status' => 'Pembayaran dibatalkan via Midtrans',
+                    'snap_token' => null,
                 ]);
                 break;
             default:
@@ -173,6 +249,11 @@ class MidtransController extends Controller
     /**
      * Handle callback dari Midtrans
      */
+    public function handleNotification(Request $request)
+    {
+        return $this->callback($request);
+    }
+
     public function callback(Request $request)
     {
         try {

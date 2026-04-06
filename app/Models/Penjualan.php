@@ -34,7 +34,11 @@ class Penjualan extends Model
 
     public function pelanggan()
     {
-        return $this->belongsTo(Pelanggan::class, 'id_pelanggan');
+        return $this->belongsTo(Pelanggan::class, 'id_pelanggan')->withDefault([
+            'nama_pelanggan' => 'Guest',
+            'email' => 'customer@example.com',
+            'no_hp' => '081234567890',
+        ]);
     }
 
     public function pengiriman()

@@ -58,6 +58,34 @@ class KeranjangController extends Controller
         return session()->get('cart', []);
     }
 
+    private function hasMidtransPaymentMethod($metodeBayar)
+    {
+        if (! $metodeBayar) {
+            return false;
+        }
+
+        if ($metodeBayar->midtrans_payment_type) {
+            return true;
+        }
+
+        $search = strtolower($metodeBayar->metode_pembayaran . ' ' . ($metodeBayar->tempat_bayar ?? ''));
+
+        return str_contains($search, 'gopay') || str_contains($search, 'ovo') || str_contains($search, 'shopeepay') || str_contains($search, 'qris') || str_contains($search, 'credit card') || str_contains($search, 'bank transfer') || str_contains($search, 'transfer') || str_contains($search, 'bca') || str_contains($search, 'bni') || str_contains($search, 'bri') || str_contains($search, 'permata') || str_contains($search, 'mandiri');
+    }
+
+    private function needsNewMidtransTransaction($penjualan)
+    {
+        if (! $penjualan->snap_token || ! $penjualan->midtrans_order_id) {
+            return true;
+        }
+
+        $status = strtolower($penjualan->keterangan_status ?? '');
+
+        return str_contains($status, 'expired via midtrans')
+            || str_contains($status, 'dibatalkan via midtrans')
+            || str_contains($status, 'ditolak oleh midtrans');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -177,24 +205,92 @@ class KeranjangController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        // Jika belum ada snap_token, buat transaksi Midtrans
-        if (!$penjualan->snap_token) {
-            $midtransController = new \App\Http\Controllers\MidtransController();
-            $response = $midtransController->createTransaction($penjualanId);
-
-            if ($response->getStatusCode() == 200) {
-                $penjualan->refresh(); // Refresh untuk mendapatkan snap_token yang baru
-            }
-        }
+        $isMidtransMethod = $this->hasMidtransPaymentMethod($penjualan->metodeBayar);
 
         // Sinkronisasi status Midtrans bila order sudah pernah dibuat
-        if ($penjualan->midtrans_order_id) {
+        if ($penjualan->midtrans_order_id && $isMidtransMethod) {
             $midtransController = new \App\Http\Controllers\MidtransController();
             $midtransController->syncTransactionStatus($penjualan->midtrans_order_id);
             $penjualan->refresh();
         }
 
+        // Jika metode pembayaran terintegrasi Midtrans dan belum ada snap_token atau transaksi sebelumnya sudah expired/cancel,
+        // buat transaksi Midtrans baru.
+        if ($isMidtransMethod && ($this->needsNewMidtransTransaction($penjualan) || !$penjualan->snap_token)) {
+            $midtransController = new \App\Http\Controllers\MidtransController();
+            $response = $midtransController->createTransaction($penjualanId);
+
+            if ($response->getStatusCode() == 200) {
+                $penjualan->refresh(); // Refresh untuk mendapatkan snap_token yang baru
+            } else {
+                $responseData = $response->getData(true) ?: [];
+                $message = $responseData['error'] ?? 'Gagal membuat transaksi Midtrans. Cek konfigurasi Midtrans di .env.';
+                session()->flash('error', $message);
+            }
+        }
+
         return view('fe.payment.show', compact('penjualan'));
+    }
+
+    public function midtransPaymentLink($penjualanId)
+    {
+        $penjualan = Penjualan::with(['metodeBayar', 'pelanggan'])
+            ->findOrFail($penjualanId);
+
+        if ($penjualan->id_pelanggan !== $this->getPelangganId()) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (! $this->hasMidtransPaymentMethod($penjualan->metodeBayar)) {
+            return redirect()->route('payment.show', $penjualan->id)
+                ->with('error', 'Metode pembayaran ini tidak terintegrasi dengan Midtrans.');
+        }
+
+        $midtransController = new \App\Http\Controllers\MidtransController();
+
+        if ($penjualan->midtrans_order_id) {
+            $midtransController->syncTransactionStatus($penjualan->midtrans_order_id);
+            $penjualan->refresh();
+        }
+
+        $response = $midtransController->createTransaction($penjualanId, true);
+        if ($response->getStatusCode() !== 200) {
+            $responseData = $response->getData(true) ?: [];
+            $message = $responseData['error'] ?? 'Gagal membuat link pembayaran Midtrans.';
+
+            return redirect()->route('payment.show', $penjualan->id)
+                ->with('error', $message);
+        }
+
+        $penjualan->refresh();
+
+        if (! $penjualan->snap_token) {
+            return redirect()->route('payment.show', $penjualan->id)
+                ->with('error', 'Gagal membuat Midtrans snap token.');
+        }
+
+        $snapUrl = config('midtrans.is_production')
+            ? 'https://app.midtrans.com/snap/v2/vtweb/'
+            : 'https://app.sandbox.midtrans.com/snap/v2/vtweb/';
+
+        return redirect()->away($snapUrl . $penjualan->snap_token);
+    }
+
+    public function paymentFinish(Request $request)
+    {
+        $orderId = $request->input('order_id') ?: $request->input('orderId');
+
+        if (! $orderId) {
+            return redirect()->route('home')->with('error', 'Order ID tidak ditemukan pada redirect Midtrans.');
+        }
+
+        $penjualan = Penjualan::where('midtrans_order_id', $orderId)->first();
+
+        if (! $penjualan) {
+            return redirect()->route('home')->with('error', 'Pesanan Midtrans tidak ditemukan.');
+        }
+
+        return redirect()->route('payment.success', $penjualan->id);
     }
 
     public function paymentSuccess($penjualanId)

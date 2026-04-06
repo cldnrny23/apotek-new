@@ -69,5 +69,10 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('12345678'),
             'jabatan' => 'kurir',
         ]);
+
+        $this->call([
+            MetodeBayarSeeder::class,
+        ]);
     }
+
 }

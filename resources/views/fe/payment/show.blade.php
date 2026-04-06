@@ -39,8 +39,13 @@
                 {{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
+        @endif        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         @endif
-
         <div class="row">
             {{-- ===== Order Summary ===== --}}
             <div class="col-lg-8 mb-4">
@@ -136,6 +141,21 @@
                         </h5>
                     </div>
                     <div class="card-body">
+                        @if(!$penjualan->snap_token && $penjualan->metodeBayar && $penjualan->metodeBayar->midtrans_payment_type)
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Token Midtrans belum dibuat. Silakan muat ulang halaman untuk mencoba kembali.
+                                Pastikan kredensial Midtrans sandbox benar di file <code>.env</code> dan metode pembayaran terhubung ke Midtrans.
+                            </div>
+                        @endif
+
+                        @if(str_contains(strtolower($penjualan->keterangan_status ?? ''), 'expired via midtrans') || str_contains(strtolower($penjualan->keterangan_status ?? ''), 'dibatalkan via midtrans') || str_contains(strtolower($penjualan->keterangan_status ?? ''), 'ditolak oleh midtrans'))
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Pembayaran sebelumnya sudah kadaluarsa atau dibatalkan oleh Midtrans. Halaman ini akan membuat tautan pembayaran baru.
+                            </div>
+                        @endif
+
                         @if($penjualan->snap_token)
                             {{-- Midtrans Payment --}}
                             <div class="text-center mb-3">
@@ -147,13 +167,27 @@
                                 <button id="pay-button" class="btn btn-success w-100 mb-2">
                                     <i class="fas fa-credit-card me-2"></i>Bayar Sekarang
                                 </button>
+                                <a href="{{ route('payment.link', $penjualan->id) }}" target="_blank" class="btn btn-outline-primary w-100 mb-2">
+                                    <i class="fas fa-external-link-alt me-2"></i>Bayar via Link ({{ config('midtrans.is_production') ? 'Production' : 'Simulator' }})
+                                </a>
                             </div>
 
                             <div class="alert alert-info mt-3">
                                 <i class="fas fa-info-circle me-2"></i>
-                                <strong>Catatan:</strong> Anda akan diarahkan ke halaman pembayaran Midtrans.
+                                <strong>Catatan:</strong> Pilih "Bayar Sekarang" untuk popup Midtrans atau "Bayar via Link" untuk membuka di tab baru.
+                                @if(config('midtrans.is_production'))
+                                    Mode Production aktif - gunakan untuk transaksi real.
+                                @else
+                                    Mode Sandbox aktif - cocok untuk testing/simulator.
+                                @endif
                                 Pilih metode pembayaran yang diinginkan.
                             </div>
+
+                            @if($penjualan->metodeBayar && $penjualan->metodeBayar->midtrans_payment_type)
+                                <div class="alert alert-secondary mt-3">
+                                    <strong>Midtrans Method:</strong> {{ ucwords(str_replace('_', ' ', $penjualan->metodeBayar->midtrans_payment_type)) }}
+                                </div>
+                            @endif
                         @else
                             {{-- Manual Payment --}}
                             <div class="mb-3">
@@ -205,11 +239,7 @@
                             <a href="{{ route('home') }}" class="btn btn-primary">
                                 <i class="fas fa-home me-2"></i>Kembali ke Beranda
                             </a>
-                            <a href="https://wa.me/6281234567890?text=Halo,%20saya%20sudah%20transfer%20untuk%20pesanan%20%23{{ str_pad($penjualan->id, 5, '0', STR_PAD_LEFT) }}"
-                               class="btn btn-success" target="_blank">
-                                <i class="fab fa-whatsapp me-2"></i>Konfirmasi via WhatsApp
-                            </a>
-                        </div>
+
                     </div>
                 </div>
 
@@ -235,35 +265,53 @@
 
 {{-- Midtrans Snap Script --}}
 @if($penjualan->snap_token)
-<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
-<script type="text/javascript">
-    document.getElementById('pay-button').onclick = function(){
-        snap.pay('{{ $penjualan->snap_token }}', {
-            onSuccess: function(result){
-                console.log('success');
-                console.log(result);
-                // Redirect to success page
-                window.location.href = '{{ route("payment.success", $penjualan->id) }}';
-            },
-            onPending: function(result){
-                console.log('pending');
-                console.log(result);
-                // Redirect to pending page or show pending message
-                window.location.href = '{{ route("payment.show", $penjualan->id) }}?status=pending';
-            },
-            onError: function(result){
-                console.log('error');
-                console.log(result);
-                // Show error message
-                alert('Pembayaran gagal: ' + result.status_message);
-            },
-            onClose: function(){
-                console.log('customer closed the popup without finishing the payment');
-                // Handle when customer closes popup
+    @php
+        $snapJsUrl = config('midtrans.is_production')
+            ? 'https://app.midtrans.com/snap/snap.js'
+            : 'https://app.sandbox.midtrans.com/snap/snap.js';
+    @endphp
+    <script src="{{ $snapJsUrl }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    <script type="text/javascript">
+        document.getElementById('pay-button').onclick = async function(){
+            try {
+                const response = await fetch('{{ route('payment.link', $penjualan->id) }}?ajax=1', {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.snap_token) {
+                    throw new Error(data.error || 'Gagal membuat token pembayaran. Silakan muat ulang halaman.');
+                }
+
+                snap.pay(data.snap_token, {
+                    onSuccess: function(result){
+                        console.log('success');
+                        console.log(result);
+                        window.location.href = '{{ route("payment.success", $penjualan->id) }}';
+                    },
+                    onPending: function(result){
+                        console.log('pending');
+                        console.log(result);
+                        window.location.href = '{{ route("payment.show", $penjualan->id) }}?status=pending';
+                    },
+                    onError: function(result){
+                        console.log('error');
+                        console.log(result);
+                        alert('Pembayaran gagal: ' + (result.status_message || 'Tidak ada detail.'));
+                    },
+                    onClose: function(){
+                        console.log('customer closed the popup without finishing the payment');
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+                alert(error.message || 'Terjadi kesalahan saat membuat pembayaran Midtrans.');
             }
-        });
-    };
-</script>
+        };
+    </script>
 @endif
 
 @endsection

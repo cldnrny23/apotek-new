@@ -20,7 +20,7 @@ class CreatePenjualansTable extends Migration
             $table->enum('status_order', [
                 'Menunggu Konfirmasi Pembayaran', 'Menunggu Konfirmasi', 'Diproses', 'Menunggu Kurir',
                 'Dibatalkan Pembeli', 'Dibatalkan Penjual', 'Bermasalah', 'Selesai'
-            ])->default('Menunggu Konfirmasi Pembayaran');
+            ])->default('Menunggu Konfirmasi');
             $table->string('keterangan_status', 255)->nullable();
             $table->unsignedBigInteger('id_jenis_kirim')->nullable();
             $table->unsignedBigInteger('id_pelanggan')->nullable();
