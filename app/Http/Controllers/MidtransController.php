@@ -138,10 +138,11 @@ class MidtransController extends Controller
             'transaction_details' => $transaction_details,
             'customer_details' => $customer_details,
             'item_details' => $item_details,
+            'notification_url' => route('api.midtrans.notification', [], true),
             'callbacks' => [
-                'finish' => route('payment.finish'),
-                'error' => route('payment.show', $penjualan->id),
-                'pending' => route('payment.show', $penjualan->id),
+                'finish' => route('payment.finish', [], true),
+                'error' => route('payment.show', $penjualan->id, true),
+                'pending' => route('payment.show', $penjualan->id, true),
             ],
         ];
 
@@ -157,6 +158,7 @@ class MidtransController extends Controller
             $penjualan->update([
                 'snap_token' => $snapToken,
                 'midtrans_order_id' => $transaction_details['order_id'],
+                'snap_token_created_at' => now(),
             ]);
 
             return response()->json([
@@ -171,7 +173,13 @@ class MidtransController extends Controller
 
     private function shouldReuseSnapToken(Penjualan $penjualan): bool
     {
-        if (! $penjualan->snap_token || ! $penjualan->midtrans_order_id) {
+        if (! $penjualan->snap_token || ! $penjualan->midtrans_order_id || ! $penjualan->snap_token_created_at) {
+            return false;
+        }
+
+        // Snap token Midtrans expired in 24 hours by default
+        // Allow token reuse up to 23 hours to be safe
+        if ($penjualan->snap_token_created_at->diffInSeconds(now()) > 82800) {
             return false;
         }
 
@@ -188,6 +196,7 @@ class MidtransController extends Controller
 
     /**
      * Update order status based on Midtrans transaction state.
+     * Successful payments stay as "Menunggu Konfirmasi" for cashier verification before processing.
      */
     private function updateOrderStatusFromMidtrans(Penjualan $penjualan, string $transaction, ?string $type = null, ?string $fraud = null)
     {
@@ -200,43 +209,45 @@ class MidtransController extends Controller
                             'keterangan_status' => 'Pembayaran challenge, menunggu verifikasi manual'
                         ]);
                     } else {
+                        // Pembayaran sukses, tapi menunggu konfirmasi kasir
                         $penjualan->update([
-                            'status_order' => 'Diproses',
-                            'keterangan_status' => 'Pembayaran berhasil via Midtrans, pesanan diproses'
+                            'status_order' => 'Menunggu Konfirmasi',
+                            'keterangan_status' => '✅ Pembayaran BERHASIL (Settlement). Kasir silakan konfirmasi untuk lanjut ke pengiriman.'
                         ]);
                     }
                 }
                 break;
             case 'settlement':
+                // Pembayaran sukses, tapi menunggu konfirmasi kasir
                 $penjualan->update([
-                    'status_order' => 'Diproses',
-                    'keterangan_status' => 'Pembayaran berhasil via Midtrans, pesanan diproses'
+                    'status_order' => 'Menunggu Konfirmasi',
+                    'keterangan_status' => '✅ Pembayaran BERHASIL. Kasir silakan konfirmasi untuk lanjut ke pengiriman.'
                 ]);
                 break;
             case 'pending':
                 $penjualan->update([
                     'status_order' => 'Menunggu Konfirmasi Pembayaran',
-                    'keterangan_status' => 'Pembayaran pending via Midtrans'
+                    'keterangan_status' => '⏳ Pembayaran PENDING (belum dikonfirmasi bank). Tunggu notifikasi...'
                 ]);
                 break;
             case 'deny':
                 $penjualan->update([
                     'status_order' => 'Dibatalkan Pembeli',
-                    'keterangan_status' => 'Pembayaran ditolak oleh Midtrans',
+                    'keterangan_status' => '❌ Pembayaran DITOLAK oleh Midtrans',
                     'snap_token' => null,
                 ]);
                 break;
             case 'expire':
                 $penjualan->update([
                     'status_order' => 'Dibatalkan Pembeli',
-                    'keterangan_status' => 'Pembayaran expired via Midtrans',
+                    'keterangan_status' => '❌ Pembayaran EXPIRED di Midtrans',
                     'snap_token' => null,
                 ]);
                 break;
             case 'cancel':
                 $penjualan->update([
                     'status_order' => 'Dibatalkan Pembeli',
-                    'keterangan_status' => 'Pembayaran dibatalkan via Midtrans',
+                    'keterangan_status' => '❌ Pembayaran DIBATALKAN dari Midtrans',
                     'snap_token' => null,
                 ]);
                 break;

@@ -3807,6 +3807,7 @@ namespace App\Models {
      * @property string|null $keterangan_status
      * @property mixed $status_order
      * @property string|null $midtrans_order_id
+     * @property \Illuminate\Support\Carbon|null $snap_token_created_at
      * @property string|null $snap_token
      * @property float|null $total_bayar
      * @property float|null $biaya_app
@@ -3829,6 +3830,7 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereBiayaApp($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereTotalBayar($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereSnapToken($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereSnapTokenCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereMidtransOrderId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereStatusOrder($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Penjualan>|Penjualan whereKeteranganStatus($value)

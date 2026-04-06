@@ -16,10 +16,12 @@ class Penjualan extends Model
         'total_bayar' => 'decimal:2',
         'snap_token' => 'string',
         'midtrans_order_id' => 'string',
+        'snap_token_created_at' => 'datetime',
     ];
 
     protected $dates = [
         'tgl_penjualan',
+        'snap_token_created_at',
     ];
 
     public function metodeBayar()

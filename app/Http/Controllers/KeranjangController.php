@@ -232,7 +232,7 @@ class KeranjangController extends Controller
         return view('fe.payment.show', compact('penjualan'));
     }
 
-    public function midtransPaymentLink($penjualanId)
+    public function midtransPaymentLink(Request $request, $penjualanId)
     {
         $penjualan = Penjualan::with(['metodeBayar', 'pelanggan'])
             ->findOrFail($penjualanId);
@@ -267,6 +267,15 @@ class KeranjangController extends Controller
         if (! $penjualan->snap_token) {
             return redirect()->route('payment.show', $penjualan->id)
                 ->with('error', 'Gagal membuat Midtrans snap token.');
+        }
+
+        if ($request->query('ajax') == '1' || $request->wantsJson()) {
+            return response()->json([
+                'snap_token' => $penjualan->snap_token,
+                'snap_url' => (config('midtrans.is_production')
+                    ? 'https://app.midtrans.com/snap/v2/vtweb/'
+                    : 'https://app.sandbox.midtrans.com/snap/v2/vtweb/') . $penjualan->snap_token,
+            ]);
         }
 
         $snapUrl = config('midtrans.is_production')
