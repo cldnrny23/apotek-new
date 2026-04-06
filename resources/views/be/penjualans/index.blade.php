@@ -23,17 +23,17 @@
         <div class="card-body">
             <div class="alert alert-info alert-dismissible fade show">
                 <i class="fas fa-lightbulb me-2"></i>
-                <strong>Alur Konfirmasi Pesanan:</strong> 
-                Pelanggan checkout → <strong>Menunggu Konfirmasi</strong> → 
-                Pelanggan konfirmasi pembayaran di FE → <strong>Menunggu Konfirmasi</strong> → 
+                <strong>Alur Konfirmasi Pesanan:</strong>
+                Pelanggan checkout → <strong>Menunggu Konfirmasi</strong> →
+                Pelanggan konfirmasi pembayaran di FE → <strong>Menunggu Konfirmasi</strong> →
                 <span class="badge bg-primary">Admin</span>
-                <span class="badge bg-success">Apoteker</span> 
+                <span class="badge bg-success">Apoteker</span>
                 <span class="badge bg-info">Kasir</span>
                 <span class="badge bg-warning text-dark">Pemilik</span>
                 konfirmasi pesanan → <strong>Diproses</strong> + Pengiriman dibuat otomatis
                 <button type="button" class="btn-close close" data-bs-dismiss="alert"></button>
             </div>
-            
+
             @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif

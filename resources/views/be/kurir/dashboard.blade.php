@@ -114,7 +114,7 @@
                 </tbody>
               </table>
             </div>
-            
+
             @if($pengirimans->hasPages())
               <div class="d-flex justify-content-center">
                 {{ $pengirimans->links() }}

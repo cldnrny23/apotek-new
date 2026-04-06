@@ -96,7 +96,7 @@ class PenjualanController extends Controller
     public function confirm(Penjualan $penjualan)
     {
         $this->authorize_role(['admin', 'apoteker', 'kasir', 'pemilik']);
-        
+
         // Only allow confirming orders after customer payment has been verified
         if (! $penjualan->awaitingPaymentVerification()) {
             return redirect()->route('penjualans.index')
@@ -111,7 +111,7 @@ class PenjualanController extends Controller
 
         // Automatically create pengiriman record
         $no_invoice = 'INV-' . str_pad($penjualan->id, 5, '0', STR_PAD_LEFT) . '-' . now()->format('YmdHi');
-        
+
         Pengiriman::create([
             'id_penjualan' => $penjualan->id,
             'no_invoice' => $no_invoice,

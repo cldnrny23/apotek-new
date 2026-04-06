@@ -127,7 +127,7 @@ document.getElementById('kurir_select').addEventListener('change', function() {
     const selectedOption = this.options[this.selectedIndex];
     const nama = selectedOption.getAttribute('data-nama');
     const telpon = selectedOption.getAttribute('data-telpon');
-    
+
     document.getElementById('nama_kurir').value = nama || '';
     document.getElementById('telpon_kurir').value = telpon || '';
 });

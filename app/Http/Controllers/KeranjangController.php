@@ -45,7 +45,7 @@ class KeranjangController extends Controller
                 ];
             })
 
-        
+
             ->toArray();
     }
 
