@@ -109,7 +109,7 @@
 
   // niceSelect js code
   $(document).ready(function () {
-    $('select').niceSelect();
+    $('select:not(.no-nice-select)').niceSelect();
   });
 
   // menu fixed js code

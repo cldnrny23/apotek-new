@@ -38,40 +38,33 @@
             @csrf
 
             {{-- Pengiriman & Pembayaran Selects --}}
-            <div class="chk-selects">
-                <div class="chk-select-wrap">
-                    <label class="chk-select-wrap__label">
-                        <i class="fas fa-shipping-fast"></i> Jenis Pengiriman
-                    </label>
-                    <div class="chk-select-field-wrap">
-                        <span class="chk-select-icon"><i class="fas fa-truck"></i></span>
-                        <select class="chk-select" name="id_jenis_kirim" id="jenis_pengiriman_select" required>
-                            <option value="">Pilih jenis pengiriman...</option>
-                            @foreach($jenis_pengirimans as $jp)
-                                <option value="{{ $jp->id }}" data-cost="{{ $jp->ongkos_kirim ?? 0 }}">
-                                    {{ $jp->nama_ekspedisi }} — {{ $jp->jenis_kirim }}
-                                    (Rp {{ number_format($jp->ongkos_kirim ?? 0, 0, ',', '.') }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+            <div class="row gx-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label" for="jenis_pengiriman_select">Jenis Pengiriman</label>
+                    <select class="form-select no-nice-select" name="id_jenis_kirim" id="jenis_pengiriman_select" required>
+                        <option value="" disabled selected hidden>Pilih jenis pengiriman...</option>
+                        @foreach($jenis_pengirimans as $jp)
+                            <option
+                                value="{{ $jp->id }}"
+                                data-cost="{{ (int) ($jp->ongkos_kirim ?? 0) }}">
+                                {{ $jp->nama_ekspedisi }} — {{ $jp->jenis_kirim }}
+                                (Rp {{ number_format($jp->ongkos_kirim ?? 0, 0, ',', '.') }})
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
-                <div class="chk-select-wrap">
-                    <label class="chk-select-wrap__label">
-                        <i class="fas fa-credit-card"></i> Metode Pembayaran
-                    </label>
-                    <div class="chk-select-field-wrap">
-                        <span class="chk-select-icon"><i class="fas fa-wallet"></i></span>
-                        <select class="chk-select" name="id_metode_bayar" id="id_metode_bayar_select" required>
-                            <option value="">Pilih metode pembayaran...</option>
-                            @foreach($metode_bayars as $mb)
-                                <option value="{{ $mb->id }}">
-                                    {{ $mb->metode_pembayaran }} — {{ $mb->tempat_bayar }}
-                                    @if($mb->no_rekening) ({{ $mb->no_rekening }}) @endif
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="id_metode_bayar_select">Metode Pembayaran</label>
+                    <select class="form-select no-nice-select" name="id_metode_bayar" id="id_metode_bayar_select" required>
+                        <option value="" disabled selected hidden>Pilih metode pembayaran...</option>
+                        @foreach($metode_bayars as $mb)
+                            <option value="{{ $mb->id }}">
+                                {{ $mb->metode_pembayaran }} — {{ $mb->tempat_bayar }}
+                                {{ $mb->no_rekening ? '(' . $mb->no_rekening . ')' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
 
@@ -143,7 +136,6 @@
                                 <strong class="chk-summary__total" id="total">Rp {{ number_format($total_price, 0, ',', '.') }}</strong>
                             </div>
 
-                            {{-- Upload Resep --}}
                             <div class="chk-resep">
                                 <div class="chk-resep__header">
                                     <i class="fas fa-file-medical chk-resep__header-icon"></i>
@@ -190,11 +182,20 @@ document.addEventListener('DOMContentLoaded', function () {
     let totalPrice = {{ $total_price }};
 
     jenisPengirimanSelect.addEventListener('change', function () {
-        const ongkir     = parseInt(this.options[this.selectedIndex].dataset.cost) || 0;
-        const totalBayar = totalPrice + ongkir;
-        ongkirSpan.textContent = 'Rp ' + ongkir.toLocaleString('id-ID');
-        totalSpan.textContent  = 'Rp ' + totalBayar.toLocaleString('id-ID');
-    });
+    const selectedOption = this.options[this.selectedIndex];
+
+    if (!selectedOption || !selectedOption.dataset.cost) {
+        ongkirSpan.textContent = 'Rp 0';
+        totalSpan.textContent  = 'Rp ' + totalPrice.toLocaleString('id-ID');
+        return;
+    }
+
+    const ongkir = parseInt(selectedOption.dataset.cost) || 0;
+    const totalBayar = totalPrice + ongkir;
+
+    ongkirSpan.textContent = 'Rp ' + ongkir.toLocaleString('id-ID');
+    totalSpan.textContent  = 'Rp ' + totalBayar.toLocaleString('id-ID');
+});
 
     orderForm.addEventListener('submit', function (e) {
         e.preventDefault();

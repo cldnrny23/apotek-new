@@ -136,35 +136,72 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
-                            <h6 class="text-primary">{{ $penjualan->metodeBayar->metode_pembayaran }}</h6>
-                            @if($penjualan->metodeBayar->no_rekening)
-                                <p class="mb-1"><strong>No. Rekening:</strong></p>
-                                <div class="bg-light p-2 rounded text-center">
-                                    <strong class="text-primary fs-5">{{ $penjualan->metodeBayar->no_rekening }}</strong>
-                                </div>
-                            @endif
-                        </div>
+                        @if($penjualan->snap_token)
+                            {{-- Midtrans Payment --}}
+                            <div class="text-center mb-3">
+                                <h6 class="text-primary">Pembayaran Online</h6>
+                                <p>Klik tombol di bawah untuk melanjutkan pembayaran</p>
+                            </div>
 
-                        <div class="mb-3">
-                            <h6>Tempat Pembayaran:</h6>
-                            <p>{{ $penjualan->metodeBayar->tempat_bayar }}</p>
-                        </div>
+                            <div class="d-grid gap-2">
+                                <button id="pay-button" class="btn btn-success w-100 mb-2">
+                                    <i class="fas fa-credit-card me-2"></i>Bayar Sekarang
+                                </button>
+                            </div>
 
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Catatan:</strong> Harap transfer sesuai nominal yang tertera.
-                            Pesanan akan diproses setelah pembayaran dikonfirmasi oleh admin.
-                        </div>
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Catatan:</strong> Anda akan diarahkan ke halaman pembayaran Midtrans.
+                                Pilih metode pembayaran yang diinginkan.
+                            </div>
+                        @else
+                            {{-- Manual Payment --}}
+                            <div class="mb-3">
+                                <h6 class="text-primary">{{ $penjualan->metodeBayar->metode_pembayaran }}</h6>
+                                @if($penjualan->metodeBayar->no_rekening)
+                                    <p class="mb-1"><strong>No. Rekening:</strong></p>
+                                    <div class="bg-light p-2 rounded text-center">
+                                        <strong class="text-primary fs-5">{{ $penjualan->metodeBayar->no_rekening }}</strong>
+                                    </div>
+                                @endif
+                            </div>
 
-                        <div class="d-grid gap-2">
-                            <form action="{{ route('payment.confirm', $penjualan->id) }}" method="POST" class="d-inline">
+                            <div class="mb-3">
+                                <h6>Tempat Pembayaran:</h6>
+                                <p>{{ $penjualan->metodeBayar->tempat_bayar }}</p>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Catatan:</strong> Harap transfer sesuai nominal yang tertera.
+                                Pesanan akan diproses setelah pembayaran dikonfirmasi oleh admin.
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <form action="{{ route('payment.confirm', $penjualan->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success w-100 mb-2"
+                                            onclick="return confirm('Apakah Anda sudah melakukan pembayaran?')">
+                                        <i class="fas fa-check-circle me-2"></i>Saya Sudah Bayar
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
+
+                        @if(!in_array($penjualan->status_order, ['Diproses', 'Menunggu Kurir', 'Selesai']))
+                        <div class="d-grid gap-2 mt-2">
+                            <form action="{{ route('payment.cancel', $penjualan->id) }}" method="POST" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-success w-100 mb-2"
-                                        onclick="return confirm('Apakah Anda sudah melakukan pembayaran?')">
-                                    <i class="fas fa-check-circle me-2"></i>Saya Sudah Bayar
+                                @method('POST')
+                                <button type="submit" class="btn btn-danger w-100 mb-2"
+                                        onclick="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')">
+                                    <i class="fas fa-times-circle me-2"></i>Batalkan Pesanan
                                 </button>
                             </form>
+                        </div>
+                        @endif
+
+                        <div class="d-grid gap-2 mt-2">
                             <a href="{{ route('home') }}" class="btn btn-primary">
                                 <i class="fas fa-home me-2"></i>Kembali ke Beranda
                             </a>
@@ -195,5 +232,38 @@
         </div>
     </div>
 </div>
+
+{{-- Midtrans Snap Script --}}
+@if($penjualan->snap_token)
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+<script type="text/javascript">
+    document.getElementById('pay-button').onclick = function(){
+        snap.pay('{{ $penjualan->snap_token }}', {
+            onSuccess: function(result){
+                console.log('success');
+                console.log(result);
+                // Redirect to success page
+                window.location.href = '{{ route("payment.success", $penjualan->id) }}';
+            },
+            onPending: function(result){
+                console.log('pending');
+                console.log(result);
+                // Redirect to pending page or show pending message
+                window.location.href = '{{ route("payment.show", $penjualan->id) }}?status=pending';
+            },
+            onError: function(result){
+                console.log('error');
+                console.log(result);
+                // Show error message
+                alert('Pembayaran gagal: ' + result.status_message);
+            },
+            onClose: function(){
+                console.log('customer closed the popup without finishing the payment');
+                // Handle when customer closes popup
+            }
+        });
+    };
+</script>
+@endif
 
 @endsection

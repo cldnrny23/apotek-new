@@ -97,10 +97,16 @@ class PenjualanController extends Controller
     {
         $this->authorize_role(['admin', 'apoteker', 'kasir', 'pemilik']);
 
-        // Only allow confirming orders after customer payment has been verified
-        if (! $penjualan->awaitingPaymentVerification()) {
+        // Allow confirmation of any order with status 'Menunggu Konfirmasi'
+        if ($penjualan->status_order !== 'Menunggu Konfirmasi') {
             return redirect()->route('penjualans.index')
-                ->with('error', 'Hanya pesanan yang sudah dikonfirmasi pembayarannya oleh pelanggan yang dapat diproses.');
+                ->with('error', 'Hanya pesanan dengan status Menunggu Konfirmasi yang dapat diproses.');
+        }
+
+        // Check if pengiriman already exists for this penjualan
+        if ($penjualan->pengiriman) {
+            return redirect()->route('penjualans.index')
+                ->with('error', 'Pengiriman untuk pesanan ini sudah ada.');
         }
 
         // Update status to processed
@@ -126,6 +132,28 @@ class PenjualanController extends Controller
 
         return redirect()->route('penjualans.index')
             ->with('success', 'Pesanan #' . str_pad($penjualan->id, 5, '0', STR_PAD_LEFT) . ' berhasil dikonfirmasi dan pengiriman telah dibuat!');
+    }
+
+    public function cancel($id)
+    {
+        $this->authorize_role(['admin', 'kasir', 'pemilik']);
+
+        $penjualan = Penjualan::findOrFail($id);
+
+        // Check if order can be cancelled
+        if (in_array($penjualan->status_order, ['Menunggu Kurir', 'Selesai'])) {
+            return redirect()->route('penjualans.index')
+                ->with('error', 'Pesanan tidak dapat dibatalkan karena sudah dalam pengiriman atau selesai.');
+        }
+
+        // Update status to cancelled by admin/kasir
+        $penjualan->update([
+            'status_order' => 'Dibatalkan Penjual',
+            'keterangan_status' => 'Pesanan dibatalkan oleh ' . ucfirst(Auth::user()->jabatan) . ' pada ' . now()->format('d M Y H:i')
+        ]);
+
+        return redirect()->route('penjualans.index')
+            ->with('success', 'Pesanan #' . str_pad($penjualan->id, 5, '0', STR_PAD_LEFT) . ' berhasil dibatalkan!');
     }
 
     private function authorize_role($allowed_roles)

@@ -29,8 +29,9 @@ class Pengiriman extends Model
         return $this->belongsTo(Penjualan::class, 'id_penjualan');
     }
 
-    public function jenisPengiriman()
+    // Access jenisPengiriman through penjualan relationship
+    public function getJenisPengirimanAttribute()
     {
-        return $this->belongsTo(JenisPengiriman::class, 'id_jenis_pengiriman');
+        return $this->penjualan->jenisPengiriman ?? null;
     }
 }

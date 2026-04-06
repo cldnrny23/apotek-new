@@ -27,6 +27,7 @@
                         <tr>
                             <th>No</th>
                             <th>No Invoice</th>
+                            <th>Pelanggan</th>
                             <th>Tanggal Kirim</th>
                             <th>Status</th>
                             <th>Kurir</th>
@@ -38,6 +39,7 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $pengiriman->no_invoice }}</td>
+                            <td>{{ $pengiriman->penjualan->pelanggan->nama_pelanggan ?? '-' }}</td>
                             <td>{{ $pengiriman->tgl_kirim ? \Carbon\Carbon::parse($pengiriman->tgl_kirim)->format('d/m/Y H:i') : '-' }}</td>
                             <td>{{ $pengiriman->status_kirim }}</td>
                             <td>{{ $pengiriman->nama_kurir }}</td>

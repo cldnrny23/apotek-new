@@ -134,8 +134,8 @@ class KeranjangController extends Controller
             'ongkos_kirim' => $request->ongkir,
             'biaya_app' => 0,
             'total_bayar' => $request->total_bayar,
-            'status_order' => 'Menunggu Konfirmasi',
-            'keterangan_status' => 'Pesanan dibuat, menunggu pembayaran dari pelanggan',
+            'status_order' => 'Menunggu Konfirmasi Pembayaran',
+            'keterangan_status' => 'Pesanan dibuat, menunggu pembayaran pelanggan',
             'id_jenis_kirim' => $request->id_jenis_kirim,
             'id_pelanggan' => $this->getPelangganId(),
         ]);
@@ -177,7 +177,42 @@ class KeranjangController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        // Jika belum ada snap_token, buat transaksi Midtrans
+        if (!$penjualan->snap_token) {
+            $midtransController = new \App\Http\Controllers\MidtransController();
+            $response = $midtransController->createTransaction($penjualanId);
+
+            if ($response->getStatusCode() == 200) {
+                $penjualan->refresh(); // Refresh untuk mendapatkan snap_token yang baru
+            }
+        }
+
+        // Sinkronisasi status Midtrans bila order sudah pernah dibuat
+        if ($penjualan->midtrans_order_id) {
+            $midtransController = new \App\Http\Controllers\MidtransController();
+            $midtransController->syncTransactionStatus($penjualan->midtrans_order_id);
+            $penjualan->refresh();
+        }
+
         return view('fe.payment.show', compact('penjualan'));
+    }
+
+    public function paymentSuccess($penjualanId)
+    {
+        $penjualan = Penjualan::with(['metodeBayar', 'jenisPengiriman', 'pelanggan', 'detailPenjualans.obat'])
+            ->findOrFail($penjualanId);
+
+        if ($penjualan->id_pelanggan !== $this->getPelangganId()) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($penjualan->midtrans_order_id) {
+            $midtransController = new \App\Http\Controllers\MidtransController();
+            $midtransController->syncTransactionStatus($penjualan->midtrans_order_id);
+            $penjualan->refresh();
+        }
+
+        return view('fe.payment.success', compact('penjualan'));
     }
 
     public function confirmPayment($penjualanId)
@@ -324,5 +359,28 @@ class KeranjangController extends Controller
         }
 
         return redirect()->route('cart.index')->with('success', 'Produk berhasil dihapus dari keranjang.');
+    }
+
+    public function cancelOrder($penjualanId)
+    {
+        $penjualan = Penjualan::findOrFail($penjualanId);
+
+        // Ensure the penjualan belongs to the current user
+        if ($penjualan->id_pelanggan !== $this->getPelangganId()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Check if order can be cancelled (only if not already processed)
+        if (in_array($penjualan->status_order, ['Diproses', 'Menunggu Kurir', 'Selesai'])) {
+            return redirect()->back()->with('error', 'Pesanan tidak dapat dibatalkan karena sudah diproses.');
+        }
+
+        // Update status to cancelled by customer
+        $penjualan->update([
+            'status_order' => 'Dibatalkan Pembeli',
+            'keterangan_status' => 'Pesanan dibatalkan oleh pelanggan'
+        ]);
+
+        return redirect()->route('home')->with('success', 'Pesanan berhasil dibatalkan.');
     }
 }

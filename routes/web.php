@@ -70,6 +70,13 @@ Route::get('/checkout', [KeranjangController::class, 'checkout'])->name('checkou
 Route::post('/checkout', [KeranjangController::class, 'processCheckout'])->name('checkout.process');
 Route::get('/payment/{penjualanId}', [KeranjangController::class, 'showPayment'])->name('payment.show');
 Route::post('/payment/{penjualanId}/confirm', [KeranjangController::class, 'confirmPayment'])->name('payment.confirm');
+Route::post('/payment/{penjualanId}/cancel', [KeranjangController::class, 'cancelOrder'])->name('payment.cancel');
+Route::get('/payment/{penjualanId}/success', [KeranjangController::class, 'paymentSuccess'])->name('payment.success');
+
+// Midtrans Routes
+Route::post('/midtrans/callback', [MidtransController::class, 'callback'])->name('midtrans.callback');
+Route::post('/midtrans/webhook', [MidtransController::class, 'webhook'])->name('midtrans.webhook');
+Route::get('/midtrans/status/{orderId}', [MidtransController::class, 'checkStatus'])->name('midtrans.status');
 
 // Admin Routes with Middleware
 Route::middleware(['auth', RoleAuth::class . ':admin,apoteker,kasir,pemilik,karyawan,kurir'])->group(function () {
@@ -214,6 +221,7 @@ Route::prefix('penjualan')->middleware(['auth', RoleAuth::class . ':admin,apotek
     Route::get('/{penjualan}/edit', [PenjualanController::class, 'edit'])->name('penjualans.edit');
     Route::put('/{penjualan}', [PenjualanController::class, 'update'])->name('penjualans.update');
     Route::post('/{penjualan}/confirm', [PenjualanController::class, 'confirm'])->name('penjualans.confirm');
+    Route::post('/{penjualan}/cancel', [PenjualanController::class, 'cancel'])->name('penjualans.cancel');
     Route::delete('/{penjualan}', [PenjualanController::class, 'destroy'])->name('penjualans.destroy');
 });
 

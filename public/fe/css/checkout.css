@@ -172,19 +172,23 @@
     z-index: 2;
 }
 
-.chk-select {
+.chk-select, .chk-select-wrap .form-select {
     width: 100%;
-    padding: 12px 16px 12px 44px;
-    border: 2px solid var(--chk-gray-200);
-    border-radius: var(--chk-radius);
-    font-size: 16px;
-    background: white;
-    transition: all 0.2s ease;
+    border: 1px solid #ced4da;
+    border-radius: .5rem;
+    padding: .75rem 1rem;
+    font-size: 1rem;
+    color: #495057;
+    background: #fff;
+    box-shadow: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px;
+}
+
+.chk-select-wrap .form-select:focus,
+.chk-select:focus {
+    outline: none;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
 .chk-select:focus {

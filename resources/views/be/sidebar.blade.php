@@ -1,5 +1,8 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
     <ul class="nav">
+    @php
+        $jabatan = auth()->check() ? strtolower(auth()->user()->jabatan) : '';
+    @endphp
     <li class="nav-item nav-profile">
         <a href="#" class="nav-link">
         <div class="profile-image">
@@ -28,26 +31,24 @@
         <li class="nav-item">
             @php
                 if (Auth::check()) {
-                    $routePrefix = Auth::user()->jabatan;
+                    $routePrefix = $jabatan;
                     $url = url("/$routePrefix");
                 } else {
                     $url = url('/login');
                 }
             @endphp
-            <a class="nav-link" href="{{ url("/$routePrefix") }}">
+            <a class="nav-link" href="{{ $url }}">
             <i class="menu-icon typcn typcn-document-text"></i>
             <span class="menu-title">Dashboard</span>
             </a>
         </li>
-    @if (auth()->check() && (auth()->user()->jabatan == 'admin'))
+    @if ($jabatan === 'admin')
         <li class="nav-item">
             <a class="nav-link" href="{{ route('users.index') }}">
             <i class="menu-icon typcn typcn-document-text"></i>
             <span class="menu-title">Management User</span>
             </a>
         </li>
-    @endif
-    @if (auth()->check() && (auth()->user()->jabatan == 'admin'))
         <li class="nav-item">
             <a class="nav-link" href="{{ route('pelanggans.index') }}">
             <i class="menu-icon typcn typcn-document-text"></i>
@@ -55,7 +56,7 @@
             </a>
         </li>
     @endif
-    @if (auth()->check() && (auth()->user()->jabatan == 'pemilik' || auth()->user()->jabatan == 'admin'))
+    @if ($jabatan === 'pemilik')
         <li class="nav-item">
             <a class="nav-link" href="{{ route('laporan_keuangan.index') }}">
             <i class="menu-icon typcn typcn-document-text"></i>
@@ -63,7 +64,7 @@
             </a>
         </li>
     @endif
-    @if (auth()->check() && (auth()->user()->jabatan == 'apoteker' || auth()->user()->jabatan == 'admin'))
+    @if ($jabatan === 'apoteker')
         <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
                 <i class="menu-icon typcn typcn-coffee"></i>
@@ -81,16 +82,12 @@
                 </ul>
             </div>
         </li>
-    @endif
-    @if (auth()->check() && (auth()->user()->jabatan == 'apoteker' || auth()->user()->jabatan == 'admin'))
         <li class="nav-item">
             <a class="nav-link" href="{{ route('distributors.index') }}">
             <i class="menu-icon typcn typcn-document-text"></i>
             <span class="menu-title">Distributor</span>
             </a>
         </li>
-    @endif
-    @if (auth()->check() && (auth()->user()->jabatan == 'apoteker' || auth()->user()->jabatan == 'admin'))
         <li class="nav-item">
             <a class="nav-link" href="{{ route('pembelian.index') }}">
             <i class="menu-icon typcn typcn-document-text"></i>
@@ -98,7 +95,7 @@
             </a>
         </li>
     @endif
-    @if (auth()->check() && (auth()->user()->jabatan == 'kasir' || auth()->user()->jabatan == 'admin'))
+    @if ($jabatan === 'kasir')
         <li class="nav-item">
             <a class="nav-link" href="{{ route('penjualans.index') }}">
             <i class="menu-icon typcn typcn-document-text"></i>
@@ -106,7 +103,7 @@
             </a>
         </li>
     @endif
-    @if (auth()->check() && (auth()->user()->jabatan == 'karyawan' || auth()->user()->jabatan == 'admin' || auth()->user()->jabatan == 'kurir'))
+    @if ($jabatan === 'karyawan' || $jabatan === 'kurir')
         <li class="nav-item">
             <a class="nav-link" href="{{ route('pengiriman.index') }}">
             <i class="menu-icon typcn typcn-document-text"></i>
@@ -114,22 +111,20 @@
             </a>
         </li>
     @endif
-    @if (auth()->check() && (auth()->user()->jabatan == 'karyawan' || auth()->user()->jabatan == 'admin'))
+    @if ($jabatan === 'karyawan')
         <li class="nav-item">
             <a class="nav-link" href="{{ route('metode-bayar.index') }}">
             <i class="menu-icon typcn typcn-document-text"></i>
             <span class="menu-title">Metode Pembayaran</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('jenis_pengirimans.index') }}">
+            <i class="menu-icon typcn typcn-document-text"></i>
+            <span class="menu-title">Jenis Pengiriman</span>
+            </a>
+        </li>
     @endif
-    @if (auth()->check() && (auth()->user()->jabatan == 'karyawan' || auth()->user()->jabatan == 'admin'))
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('jenis_pengirimans.index') }}">
-        <i class="menu-icon typcn typcn-document-text"></i>
-        <span class="menu-title">Jenis Pengiriman</span>
-        </a>
-    </li>
-@endif
 </nav>
 
 

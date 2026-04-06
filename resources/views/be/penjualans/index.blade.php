@@ -73,7 +73,7 @@
                             </td>
                             <td>Rp {{ number_format($penjualan->total_bayar, 0, ',', '.') }}</td>
                             <td>
-                                @if($penjualan->awaitingPaymentVerification())
+                                @if($penjualan->status_order === 'Menunggu Konfirmasi')
                                     <form action="{{ route('penjualans.confirm', $penjualan->id) }}" method="POST" class="d-inline" title="Konfirmasi dan mulai proses pesanan">
                                         @csrf
                                         <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Konfirmasi pesanan ini dan buat pengiriman?')">
@@ -81,6 +81,16 @@
                                         </button>
                                     </form>
                                 @endif
+
+                                @if(in_array(Auth::user()->jabatan, ['admin', 'kasir', 'pemilik']) && !in_array($penjualan->status_order, ['Menunggu Kurir', 'Selesai', 'Dibatalkan Penjual', 'Dibatalkan Pembeli']))
+                                    <form action="{{ route('penjualans.cancel', $penjualan->id) }}" method="POST" class="d-inline" title="Batalkan pesanan">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Yakin ingin membatalkan pesanan ini?')">
+                                            <i class="fas fa-times"></i> Batalkan
+                                        </button>
+                                    </form>
+                                @endif
+
                                 @if(in_array(Auth::user()->jabatan, ['admin', 'apoteker', 'kasir', 'pemilik']))
                                     <a href="{{ route('penjualans.edit', $penjualan->id) }}" class="btn btn-sm btn-primary" title="Edit pesanan">
                                         <i class="fas fa-edit"></i> Edit

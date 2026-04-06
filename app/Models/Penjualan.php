@@ -14,6 +14,8 @@ class Penjualan extends Model
         'ongkos_kirim' => 'decimal:2',
         'biaya_app' => 'decimal:2',
         'total_bayar' => 'decimal:2',
+        'snap_token' => 'string',
+        'midtrans_order_id' => 'string',
     ];
 
     protected $dates = [

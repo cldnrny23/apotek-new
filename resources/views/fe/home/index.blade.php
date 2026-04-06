@@ -6,11 +6,12 @@
 @section('banner')
     @include('fe.banner')
 @endsection
+@section('subscribe')
+    @include('fe.subscribe')
+@endsection
 @section('produk-list')
     @include('fe.produk-list')
 @endsection
 
 
-@section('subscribe')
-    @include('fe.subscribe')
-@endsection
+

@@ -48,7 +48,15 @@ class PengirimanController extends Controller
         }
 
         $request->validate([
-            'id_penjualan' => 'required|exists:penjualans,id',
+            'id_penjualan' => [
+                'required',
+                'exists:penjualans,id',
+                function ($attribute, $value, $fail) {
+                    if (Pengiriman::where('id_penjualan', $value)->exists()) {
+                        $fail('Penjualan ini sudah memiliki pengiriman.');
+                    }
+                },
+            ],
             'nama_kurir' => 'required|max:30',
             'telpon_kurir' => 'required|max:15',
             'no_invoice' => 'required|unique:pengirimans',
@@ -126,7 +134,7 @@ class PengirimanController extends Controller
             'telpon_kurir' => 'required|max:15',
             'no_invoice' => 'required|unique:pengirimans,no_invoice,' . $pengiriman->id,
             'tgl_kirim' => 'required',
-            'status_kirim' => 'required|in:Menunggu Konfirmasi,Sedang Dikirim,Tiba Ditujuan',
+            'status_kirim' => 'required|in:Menunggu Konfirmasi,Sedang Dikirim,Diterima',
             'bukti_foto' => 'nullable|image|max:2048'
         ]);
 
@@ -213,7 +221,7 @@ class PengirimanController extends Controller
         }
 
         $request->validate([
-            'status_kirim' => 'required|in:Menunggu Konfirmasi,Sedang Dikirim,Tiba Ditujuan',
+            'status_kirim' => 'required|in:Menunggu Konfirmasi,Sedang Dikirim,Diterima',
             'bukti_foto' => 'nullable|image|max:2048'
         ]);
 
