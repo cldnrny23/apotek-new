@@ -27,14 +27,8 @@ class Obat extends Model
         return $this->belongsTo(JenisObat::class, 'id_jenis');
     }
 
-    // // Di dalam model Obat
-    // public function getGambarUtamaAttribute()
-    // {
-    //     return $this->foto1 ? asset('storage/'.$this->foto1);
-    // }
-
-    // public function getHargaAttribute()
-    // {
-    //     return $this->harga_jual;
-    // }
+    public function penjualanDetails()
+    {
+        return $this->hasMany(DetailPenjualan::class, 'id_obat');
+    }
 }

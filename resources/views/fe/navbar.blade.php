@@ -363,9 +363,7 @@
                 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
                 <a href="{{ route('fe.about.index') }}" class="{{ request()->routeIs('fe.about.*') ? 'active' : '' }}">About</a>
                 <a href="{{ route('list.index') }}" class="{{ request()->routeIs('list.*') ? 'active' : '' }}">Product</a>
-                @if(Auth::guard('pelanggan')->check())
-                <a href="{{ route('profilefe.index') }}" class="{{ request()->routeIs('profilefe.*') ? 'active' : '' }}">Profile</a>
-                @endif
+                
             </nav>
 
             {{-- Actions (Desktop) --}}

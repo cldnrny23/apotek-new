@@ -3,106 +3,238 @@
     @include('be.sidebar')
 @endsection
 @section('content')
-<div class="content-wrapper">
-    <!-- Page Title Header Starts-->
-    <div class="row page-title-header">
-      <div class="col-12">
-        <div class="page-header">
-          <h4 class="page-title">Dashboard</h4>
-        </div>
-      </div>
-      <div class="col-md-12">
-        <div class="page-header-toolbar">
-          <div class="btn-group toolbar-item" role="group" aria-label="Basic example">
-            <button type="button" class="btn btn-secondary"><i class="mdi mdi-chevron-left"></i></button>
-            <button type="button" class="btn btn-secondary">03/02/2019 - 20/08/2019</button>
-            <button type="button" class="btn btn-secondary"><i class="mdi mdi-chevron-right"></i></button>
-          </div>
-          <div class="filter-wrapper">
-            <div class="dropdown toolbar-item">
-              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownsorting" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">All Day</button>
-              <div class="dropdown-menu" aria-labelledby="dropdownsorting">
-                <a class="dropdown-item" href="#">Last Day</a>
-                <a class="dropdown-item" href="#">Last Month</a>
-                <a class="dropdown-item" href="#">Last Year</a>
-              </div>
-            </div>
-            <a href="#" class="advanced-link toolbar-item">Advanced Options</a>
-          </div>
-          <div class="sort-wrapper">
-            <button type="button" class="btn btn-primary toolbar-item">New</button>
-            <div class="dropdown ml-lg-auto ml-3 toolbar-item">
-              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownexport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Export</button>
-              <div class="dropdown-menu" aria-labelledby="dropdownexport">
-                <a class="dropdown-item" href="#">Export as PDF</a>
-                <a class="dropdown-item" href="#">Export as DOCX</a>
-                <a class="dropdown-item" href="#">Export as CDR</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Page Title Header Ends-->
-    <div class="row">
-      <div class="col-md-12 grid-margin">
-        <div class="card">
+<div class="content-wrapper" style="background-color: #f7f8fc;">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="border-left: 4px solid #007bff;">
           <div class="card-body">
-            <div class="row">
-              <div class="col-lg-3 col-md-6">
-                <div class="d-flex">
-                  <div class="wrapper">
-                    <h3 class="mb-0 font-weight-semibold">32,451</h3>
-                    <h5 class="mb-0 font-weight-medium text-primary">Visits</h5>
-                    <p class="mb-0 text-muted">+14.00(+0.50%)</p>
-                  </div>
-                  <div class="wrapper my-auto ml-auto ml-lg-4">
-                    <canvas height="50" width="100" id="stats-line-graph-1"></canvas>
-                  </div>
-                </div>
+            <div class="d-flex">
+              <div>
+                <h3 class="mb-0 font-weight-bold text-primary">{{ number_format($totalPenjualan) }}</h3>
+                <p class="mb-0 text-muted">Penjualan Bulan Ini</p>
               </div>
-              <div class="col-lg-3 col-md-6 mt-md-0 mt-4">
-                <div class="d-flex">
-                  <div class="wrapper">
-                    <h3 class="mb-0 font-weight-semibold">15,236</h3>
-                    <h5 class="mb-0 font-weight-medium text-primary">Impressions</h5>
-                    <p class="mb-0 text-muted">+138.97(+0.54%)</p>
-                  </div>
-                  <div class="wrapper my-auto ml-auto ml-lg-4">
-                    <canvas height="50" width="100" id="stats-line-graph-2"></canvas>
-                  </div>
-                </div>
+              <div class="ml-auto">
+                <i class="mdi mdi-shopping text-primary" style="font-size: 36px; opacity: 0.3;"></i>
               </div>
-              <div class="col-lg-3 col-md-6 mt-md-0 mt-4">
-                <div class="d-flex">
-                  <div class="wrapper">
-                    <h3 class="mb-0 font-weight-semibold">7,688</h3>
-                    <h5 class="mb-0 font-weight-medium text-primary">Conversation</h5>
-                    <p class="mb-0 text-muted">+57.62(+0.76%)</p>
-                  </div>
-                  <div class="wrapper my-auto ml-auto ml-lg-4">
-                    <canvas height="50" width="100" id="stats-line-graph-3"></canvas>
-                  </div>
-                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="border-left: 4px solid #ffc107;">
+          <div class="card-body">
+            <div class="d-flex">
+              <div>
+                <h3 class="mb-0 font-weight-bold text-warning">{{ number_format($totalPembelian) }}</h3>
+                <p class="mb-0 text-muted">Pembelian Bulan Ini</p>
               </div>
-              <div class="col-lg-3 col-md-6 mt-md-0 mt-4">
-                <div class="d-flex">
-                  <div class="wrapper">
-                    <h3 class="mb-0 font-weight-semibold">1,553</h3>
-                    <h5 class="mb-0 font-weight-medium text-primary">Downloads</h5>
-                    <p class="mb-0 text-muted">+138.97(+0.54%)</p>
-                  </div>
-                  <div class="wrapper my-auto ml-auto ml-lg-4">
-                    <canvas height="50" width="100" id="stats-line-graph-4"></canvas>
-                  </div>
-                </div>
+              <div class="ml-auto">
+                <i class="mdi mdi-truck text-warning" style="font-size: 36px; opacity: 0.3;"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="border-left: 4px solid #28a745;">
+          <div class="card-body">
+            <div class="d-flex">
+              <div>
+                <h3 class="mb-0 font-weight-bold text-success">{{ number_format($totalProduk) }}</h3>
+                <p class="mb-0 text-muted">Total Produk</p>
+              </div>
+              <div class="ml-auto">
+                <i class="mdi mdi-pill text-success" style="font-size: 36px; opacity: 0.3;"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="border-left: 4px solid #dc3545;">
+          <div class="card-body">
+            <div class="d-flex">
+              <div>
+                <h3 class="mb-0 font-weight-bold text-danger">{{ number_format($totalPelanggan) }}</h3>
+                <p class="mb-0 text-muted">Total Pelanggan</p>
+              </div>
+              <div class="ml-auto">
+                <i class="mdi mdi-account-multiple text-danger" style="font-size: 36px; opacity: 0.3;"></i>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Financial Cards -->
+    <div class="row mb-4">
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm bg-light-primary">
+          <div class="card-body">
+            <p class="text-muted mb-2 font-weight-bold">💰 Revenue</p>
+            <h4 class="mb-0 font-weight-bold">Rp {{ number_format($totalRevenue, 0) }}</h4>
+            <small class="text-muted">Bulan ini</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="background-color: #fff3cd;">
+          <div class="card-body">
+            <p class="text-muted mb-2 font-weight-bold">📦 Cost</p>
+            <h4 class="mb-0 font-weight-bold">Rp {{ number_format($totalCost, 0) }}</h4>
+            <small class="text-muted">Bulan ini</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="background-color: #d4edda;">
+          <div class="card-body">
+            <p class="text-muted mb-2 font-weight-bold">📈 Profit</p>
+            <h4 class="mb-0 font-weight-bold">Rp {{ number_format($profit, 0) }}</h4>
+            <small class="text-muted">Bulan ini</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="background-color: #d1ecf1;">
+          <div class="card-body">
+            <p class="text-muted mb-2 font-weight-bold">📊 Margin</p>
+            <h4 class="mb-0 font-weight-bold">{{ $profitMargin }}%</h4>
+            <small class="text-muted">ROI Profit</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="row mb-4">
+      @if($lowStockProducts > 0)
+      <div class="col-md-6 mb-3">
+        <div class="alert alert-warning border-left-warning shadow-sm" role="alert">
+          <h5 class="alert-heading"><i class="mdi mdi-alert-circle"></i> ⚠️ Stok Rendah</h5>
+          <p class="mb-0">{{ $lowStockProducts }} produk memiliki stok kurang dari 5 unit</p>
+          <a href="{{ route('obat.index') }}" class="btn btn-sm btn-warning mt-2">Lihat Produk</a>
+        </div>
+      </div>
+      @endif
+      
+      <div class="col-md-6 mb-3">
+        <div class="alert alert-info border-left-info shadow-sm" role="alert">
+          <h5 class="alert-heading"><i class="mdi mdi-information"></i> 📊 Info Sistem</h5>
+          <p class="mb-0">Total {{ $totalKaryawan }} pengguna/karyawan terdaftar dalam sistem</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tables -->
     <div class="row">
+      <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-bottom">
+            <h5 class="card-title mb-0">🏆 <strong>Produk Terlaris</strong></h5>
+          </div>
+          <div class="card-body p-0">
+            @if($topProducts->count() > 0)
+            <div class="table-responsive">
+              <table class="table table-sm table-hover mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th>Produk</th>
+                    <th class="text-right">Terjual</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($topProducts as $idx => $product)
+                  <tr>
+                    <td><strong>#{{ $idx + 1 }}</strong> {{ $product->nama_obat }}</td>
+                    <td class="text-right">
+                      <span class="badge badge-primary">{{ $product->penjualan_details_count ?? 0 }}</span>
+                    </td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+            @else
+            <div class="p-3 text-center text-muted">
+              <i class="mdi mdi-folder-open-outline" style="font-size: 36px;"></i>
+              <p class="mt-2">Belum ada data penjualan</p>
+            </div>
+            @endif
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-bottom">
+            <h5 class="card-title mb-0">📝 <strong>Penjualan Terakhir</strong></h5>
+          </div>
+          <div class="card-body p-0">
+            @if($recentPenjualan->count() > 0)
+            <div class="table-responsive">
+              <table class="table table-sm table-hover mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th>Pelanggan</th>
+                    <th class="text-right">Total</th>
+                    <th class="text-right">Tanggal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($recentPenjualan as $sale)
+                  <tr>
+                    <td>{{ $sale->pelanggan->nama_pelanggan ?? 'Guest' }}</td>
+                    <td class="text-right"><strong>Rp {{ number_format($sale->total_harga, 0) }}</strong></td>
+                    <td class="text-right">{{ $sale->created_at->format('d M Y') }}</td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+            @else
+            <div class="p-3 text-center text-muted">
+              <i class="mdi mdi-receipt-text-outline" style="font-size: 36px;"></i>
+              <p class="mt-2">Belum ada transaksi penjualan</p>
+            </div>
+            @endif
+          </div>
+        </div>
+      </div>
+    </div>
+
+</div>
+
+<style>
+  .bg-light-primary {
+    background-color: #e7f0ff;
+  }
+  .border-left-warning {
+    border-left: 4px solid #ffc107 !important;
+  }
+  .border-left-info {
+    border-left: 4px solid #17a2b8 !important;
+  }
+  .text-small {
+    font-size: 0.875rem;
+  }
+  .card {
+    transition: all 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+</style>
+@endsection
       <div class="col-md-8 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">

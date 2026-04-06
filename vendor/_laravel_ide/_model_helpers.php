@@ -2510,6 +2510,8 @@ namespace App\Models {
      * @property string $nama_obat
      * @property int $id
      * @property-read \App\Models\JenisObat $jenisObat
+     * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DetailPenjualan> $penjualanDetails
+     * @property-read int|null $penjualan_details_count
      * @method static \Illuminate\Database\Eloquent\Builder<Obat>|Obat whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Obat>|Obat whereNamaObat($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Obat>|Obat whereIdJenis($value)
