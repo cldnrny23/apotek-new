@@ -53,6 +53,7 @@
                 <option value="karyawan"{{ old('jabatan') == 'karyawan' ? 'selected' : ''  }}>Karyawan</option>
                 <option value="kasir"{{ old('jabatan') == 'kasir' ? 'selected' : ''  }}>Kasir</option>
                 <option value="pemilik"{{ old('jabatan') == 'pemilik' ? 'selected' : ''  }}>Pemilik</option>
+                <option value="kurir"{{ old('jabatan') == 'kurir' ? 'selected' : ''  }}>Kurir</option>
             </select>
             @error('jabatan')
                 <div class="invalid-feedback">{{ $message }}</div>

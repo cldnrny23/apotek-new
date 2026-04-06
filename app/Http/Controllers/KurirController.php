@@ -22,7 +22,7 @@ class KurirController extends Controller
         $sedang_dikirim = Pengiriman::where('nama_kurir', $user->name)
             ->where('status_kirim', 'Sedang Dikirim')->count();
         $tiba_ditujuan = Pengiriman::where('nama_kurir', $user->name)
-            ->where('status_kirim', 'Tiba Ditujuan')->count();
+            ->where('status_kirim', 'Diterima')->count();
 
         return view('be.kurir.dashboard', compact('pengirimans', 'total_pengiriman', 'sedang_dikirim', 'tiba_ditujuan', 'user'));
     }

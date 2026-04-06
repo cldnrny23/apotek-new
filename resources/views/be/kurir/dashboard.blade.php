@@ -46,7 +46,7 @@
                 <div class="d-flex">
                   <div class="wrapper">
                     <h3 class="mb-0 font-weight-semibold">{{ $tiba_ditujuan }}</h3>
-                    <h5 class="mb-0 font-weight-medium text-success">Tiba Ditujuan</h5>
+                    <h5 class="mb-0 font-weight-medium text-success">Diterima</h5>
                   </div>
                   <div class="wrapper my-auto ml-auto ml-lg-4">
                     <i class="mdi mdi-check-circle" style="font-size: 2rem; color: #28a745;"></i>
@@ -98,7 +98,7 @@
                     <td>{{ $pengiriman->penjualan->pelanggan->nama_pelanggan ?? '-' }}</td>
                     <td>{{ $pengiriman->tgl_kirim ? \Carbon\Carbon::parse($pengiriman->tgl_kirim)->format('d/m/Y H:i') : '-' }}</td>
                     <td>
-                      @if($pengiriman->status_kirim === 'Tiba Ditujuan')
+                      @if($pengiriman->status_kirim === 'Diterima')
                         <label class="badge badge-success">{{ $pengiriman->status_kirim }}</label>
                       @else
                         <label class="badge badge-warning">{{ $pengiriman->status_kirim }}</label>

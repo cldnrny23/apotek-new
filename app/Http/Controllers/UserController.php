@@ -29,7 +29,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'no_hp' => 'required|string|max:15|unique:users,no_hp',
-            'jabatan' => 'required|string|in:admin,apoteker,kasir,pemilik,karyawan'
+            'jabatan' => 'required|string|in:admin,apoteker,kasir,pemilik,karyawan,kurir'
         ]);
 
         DB::beginTransaction();
@@ -67,7 +67,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'jabatan' => 'required|in:admin,apoteker,kasir,pemilik,karyawan'
+            'jabatan' => 'required|in:admin,apoteker,kasir,pemilik,karyawan,kurir'
         ]);
 
         if($request->filled('password')) {

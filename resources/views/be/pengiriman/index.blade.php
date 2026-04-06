@@ -70,8 +70,8 @@
                                         <form action="{{ route('pengiriman.updateStatus', $pengiriman->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PUT')
-                                            <input type="hidden" name="status_kirim" value="Tiba Ditujuan">
-                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Tandai pengiriman ini sebagai Tiba Ditujuan?')">Tandai Tiba Ditujuan</button>
+                                            <input type="hidden" name="status_kirim" value="Diterima">
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Tandai pengiriman ini sebagai Diterima?')">Tandai Diterima</button>
                                         </form>
                                     @endif
                                 @endif

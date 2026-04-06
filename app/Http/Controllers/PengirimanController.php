@@ -174,7 +174,7 @@ class PengirimanController extends Controller
             return redirect()->route('pengiriman.index')->with('error', 'Hanya karyawan yang bisa memilih kurir');
         }
 
-        if ($pengiriman->nama_kurir !== 'Belum Dipilih' || $pengiriman->status_kirim === 'Tiba Ditujuan') {
+        if ($pengiriman->nama_kurir !== 'Belum Dipilih' || $pengiriman->status_kirim === 'Diterima') {
             return redirect()->route('pengiriman.index')->with('error', 'Kurir hanya bisa dipilih untuk pengiriman yang belum memiliki kurir.');
         }
 
@@ -221,7 +221,7 @@ class PengirimanController extends Controller
         $pengiriman->status_kirim = $request->status_kirim;
 
         // Jika tiba di tujuan, set tgl_tiba
-        if ($request->status_kirim === 'Tiba Ditujuan') {
+        if ($request->status_kirim === 'Diterima') {
             $pengiriman->tgl_tiba = now();
         }
 
