@@ -52,8 +52,9 @@
                             <label for="status_kirim" class="form-label">Status Pengiriman</label>
                             <select name="status_kirim" class="form-select @error('status_kirim') is-invalid @enderror">
                                 <option value="">Pilih Status</option>
+                                <option value="Menunggu Konfirmasi" {{ old('status_kirim') == 'Menunggu Konfirmasi' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
                                 <option value="Sedang Dikirim" {{ old('status_kirim') == 'Sedang Dikirim' ? 'selected' : '' }}>Sedang Dikirim</option>
-                                <option value="Tiba Ditujuan" {{ old('status_kirim') == 'Tiba Ditujuan' ? 'selected' : '' }}>Tiba Ditujuan</option>
+                                <option value="Diterima" {{ old('status_kirim') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
                             </select>
                             @error('status_kirim')
                                 <div class="invalid-feedback">{{ $message }}</div>

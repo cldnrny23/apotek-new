@@ -117,11 +117,11 @@ class PenjualanController extends Controller
             'no_invoice' => $no_invoice,
             'tgl_kirim' => now(),
             'tgl_tiba' => null,
-            'status_kirim' => 'Sedang Dikirim',
+            'status_kirim' => 'Menunggu Konfirmasi',
             'nama_kurir' => 'Belum Dipilih',
             'telpon_kurir' => '-',
             'bukti_foto' => '-',
-            'keterangan' => 'Pengiriman otomatis dibuat saat pesanan dikonfirmasi'
+            'keterangan' => 'Pengiriman otomatis dibuat saat pesanan dikonfirmasi dan menunggu pemilihan kurir oleh karyawan'
         ]);
 
         return redirect()->route('penjualans.index')

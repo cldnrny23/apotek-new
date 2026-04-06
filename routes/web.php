@@ -74,6 +74,7 @@ Route::post('/payment/{penjualanId}/confirm', [KeranjangController::class, 'conf
 // Admin Routes with Middleware
 Route::middleware(['auth', RoleAuth::class . ':admin,apoteker,kasir,pemilik,karyawan,kurir'])->group(function () {
     Route::resource('pengiriman', PengirimanController::class);
+    Route::put('pengiriman/{pengiriman}/assign-kurir', [PengirimanController::class, 'assignKurir'])->name('pengiriman.assignKurir');
     Route::put('pengiriman/{pengiriman}/update-status', [PengirimanController::class, 'updateStatus'])->name('pengiriman.updateStatus');
 });
 

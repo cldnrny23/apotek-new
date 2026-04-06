@@ -42,10 +42,42 @@
                             <td>{{ $pengiriman->status_kirim }}</td>
                             <td>{{ $pengiriman->nama_kurir }}</td>
                             <td>
-                                @if(in_array(auth()->user()->jabatan, ['admin', 'karyawan', 'kurir']))
-                                    <a href="{{ route('pengiriman.edit', $pengiriman->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                @if(auth()->user()->jabatan === 'karyawan' && $pengiriman->nama_kurir === 'Belum Dipilih')
+                                    <form action="{{ route('pengiriman.assignKurir', $pengiriman->id) }}" method="POST" class="d-flex gap-2 align-items-center">
+                                        @csrf
+                                        @method('PUT')
+                                        <select name="kurir_id" class="form-select form-select-sm" style="min-width: 170px;">
+                                            <option value="">Pilih Kurir</option>
+                                            @foreach($kurirs as $kurir)
+                                                <option value="{{ $kurir->id }}">
+                                                    {{ $kurir->name }} - {{ $kurir->no_hp }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-primary">Pilih Kurir</button>
+                                    </form>
                                 @endif
-                                @if(in_array(auth()->user()->jabatan, ['admin', 'karyawan']))
+
+                                @if(auth()->user()->jabatan === 'kurir')
+                                    @if($pengiriman->status_kirim === 'Menunggu Konfirmasi')
+                                        <form action="{{ route('pengiriman.updateStatus', $pengiriman->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status_kirim" value="Sedang Dikirim">
+                                            <button type="submit" class="btn btn-sm btn-info" onclick="return confirm('Set status pengiriman ini menjadi Sedang Dikirim?')">Mulai Kirim</button>
+                                        </form>
+                                    @elseif($pengiriman->status_kirim === 'Sedang Dikirim')
+                                        <form action="{{ route('pengiriman.updateStatus', $pengiriman->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status_kirim" value="Tiba Ditujuan">
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Tandai pengiriman ini sebagai Tiba Ditujuan?')">Tandai Tiba Ditujuan</button>
+                                        </form>
+                                    @endif
+                                @endif
+
+                                @if(auth()->user()->jabatan === 'admin')
+                                    <a href="{{ route('pengiriman.edit', $pengiriman->id) }}" class="btn btn-sm btn-warning">Edit</a>
                                     <form action="{{ route('pengiriman.destroy', $pengiriman->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')

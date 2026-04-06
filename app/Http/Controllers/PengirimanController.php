@@ -24,7 +24,8 @@ class PengirimanController extends Controller
             $pengirimans = Pengiriman::with(['penjualan.pelanggan'])->latest()->paginate(10);
         }
 
-        return view('be.pengiriman.index', compact('pengirimans'));
+        $kurirs = User::where('jabatan', 'kurir')->get();
+        return view('be.pengiriman.index', compact('pengirimans', 'kurirs'));
     }
 
     public function create()
@@ -80,7 +81,11 @@ class PengirimanController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->jabatan, ['karyawan', 'admin', 'kurir'])) {
+        if ($user->jabatan === 'karyawan') {
+            return redirect()->route('pengiriman.index')->with('error', 'Gunakan daftar pengiriman untuk memilih kurir, bukan halaman edit.');
+        }
+
+        if (!in_array($user->jabatan, ['admin', 'kurir'])) {
             return redirect()->route('pengiriman.index')->with('error', 'Anda tidak memiliki akses untuk mengedit pengiriman');
         }
 
@@ -95,9 +100,24 @@ class PengirimanController extends Controller
 
     public function update(Request $request, Pengiriman $pengiriman)
     {
-        // Hanya karyawan yang bisa edit full detail
-        if (auth()->user()->jabatan !== 'karyawan') {
-            return redirect()->route('pengiriman.index')->with('error', 'Hanya karyawan yang bisa edit pengiriman');
+        $user = auth()->user();
+
+        if ($user->jabatan === 'karyawan') {
+            if ($pengiriman->status_kirim !== 'Menunggu Konfirmasi') {
+                return redirect()->route('pengiriman.index')->with('error', 'Hanya pengiriman dengan status Menunggu Konfirmasi yang bisa dipilih kurirnya.');
+            }
+
+            $request->validate([
+                'nama_kurir' => 'required|max:30',
+                'telpon_kurir' => 'required|max:15',
+            ]);
+
+            $pengiriman->update($request->only(['nama_kurir', 'telpon_kurir']));
+            return redirect()->route('pengiriman.index')->with('success', 'Kurir berhasil dipilih untuk pengiriman ini');
+        }
+
+        if ($user->jabatan !== 'admin') {
+            return redirect()->route('pengiriman.index')->with('error', 'Anda tidak memiliki akses untuk mengedit pengiriman');
         }
 
         $request->validate([
@@ -106,7 +126,7 @@ class PengirimanController extends Controller
             'telpon_kurir' => 'required|max:15',
             'no_invoice' => 'required|unique:pengirimans,no_invoice,' . $pengiriman->id,
             'tgl_kirim' => 'required',
-            'status_kirim' => 'required|in:Menunggu Konfirmasi,Sedang Dikirim,Diterima',
+            'status_kirim' => 'required|in:Menunggu Konfirmasi,Sedang Dikirim,Tiba Ditujuan',
             'bukti_foto' => 'nullable|image|max:2048'
         ]);
 
@@ -148,6 +168,35 @@ class PengirimanController extends Controller
         return redirect()->route('pengiriman.index')->with('success', 'Pengiriman berhasil dihapus');
     }
 
+    public function assignKurir(Request $request, Pengiriman $pengiriman)
+    {
+        if (auth()->user()->jabatan !== 'karyawan') {
+            return redirect()->route('pengiriman.index')->with('error', 'Hanya karyawan yang bisa memilih kurir');
+        }
+
+        if ($pengiriman->nama_kurir !== 'Belum Dipilih' || $pengiriman->status_kirim === 'Tiba Ditujuan') {
+            return redirect()->route('pengiriman.index')->with('error', 'Kurir hanya bisa dipilih untuk pengiriman yang belum memiliki kurir.');
+        }
+
+        $request->validate([
+            'kurir_id' => 'required|exists:users,id',
+        ]);
+
+        $kurir = User::find($request->kurir_id);
+        if (!$kurir || $kurir->jabatan !== 'kurir') {
+            return redirect()->route('pengiriman.index')->with('error', 'Kurir tidak valid.');
+        }
+
+        $pengiriman->update([
+            'nama_kurir' => $kurir->name,
+            'telpon_kurir' => $kurir->no_hp,
+            'status_kirim' => 'Sedang Dikirim',
+            'keterangan' => 'Kurir dipilih oleh karyawan dan pengiriman telah dimulai'
+        ]);
+
+        return redirect()->route('pengiriman.index')->with('success', 'Kurir berhasil dipilih dan pengiriman kini dalam status Sedang Dikirim');
+    }
+
     /**
      * Update status pengiriman oleh kurir
      */
@@ -158,21 +207,21 @@ class PengirimanController extends Controller
             return redirect()->route('pengiriman.index')->with('error', 'Hanya kurir yang bisa update status');
         }
 
-        // Validasi bahwa pengiriman ini untuk kurir tersebut
-        if ($pengiriman->nama_kurir !== auth()->user()->name) {
+        // Kurir hanya bisa update status untuk pengiriman mereka sendiri
+        if (auth()->user()->jabatan === 'kurir' && $pengiriman->nama_kurir !== auth()->user()->name) {
             return redirect()->route('pengiriman.index')->with('error', 'Pengiriman ini bukan untuk Anda');
         }
 
         $request->validate([
-            'status_kirim' => 'required|in:Menunggu Konfirmasi,Sedang Dikirim,Diterima',
+            'status_kirim' => 'required|in:Menunggu Konfirmasi,Sedang Dikirim,Tiba Ditujuan',
             'bukti_foto' => 'nullable|image|max:2048'
         ]);
 
         // Update status
         $pengiriman->status_kirim = $request->status_kirim;
 
-        // Jika diterima, set tgl_tiba
-        if ($request->status_kirim === 'Diterima') {
+        // Jika tiba di tujuan, set tgl_tiba
+        if ($request->status_kirim === 'Tiba Ditujuan') {
             $pengiriman->tgl_tiba = now();
         }
 
